@@ -1,0 +1,23 @@
+Two version identifiers are crucial within the Project:
+    * StrainTensor.py, and
+    * pystrain
+
+The version of StrainTensor.py, is declared as a variable within the script
+and can be obtained via the '-v' or '--version' switch.
+The version variable's name is 'Version' and it is declared (defined) just after
+the various import statements, at the top part of the source code. E.g.
+``Version = 'StrainTensor.py Version: 1.0-beta (pre-release)'``
+
+The version of pystrain library, is declared/defined within the pystrain/__init__.py
+file. This file, is read during the installation process and the library's
+version is set.
+To obtain the version of pystrain, you can do something like:
+```
+import pystrain
+print('{}'.format(pystrain.__version__))
+```
+
+Warning:
+Versioning is crucial for the Project, as its development phase is still very
+active. Whenever major changes are made, the versioning identifier(s) should
+be accordingly updated.
