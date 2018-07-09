@@ -4,9 +4,11 @@
 
 <head>
     <title>StrainTool</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML' async></script>
-    <script type="text/javascript" src="straindoc.js"></script>
     <style>
         .container {
             margin: 15px auto;
@@ -230,7 +232,7 @@
         printed (i.e. how many fields, decimal places, etc). The only condition is 
         that fields are seperated by whitespace(s). To see an example of a valid
         input file, you can check <code>data/CNRS_midas.vel</code>.</p>
-        <h2>Output Files</h2>
+        <h2 id="output_files">Output Files</h2>
 	<p>Results of <code>StrainTensor.py</code> are recorded in the following three files: </p>
 	  <ul>
 	    <li> <b>strain_info.dat :</b> This file includes strain tensor parameters, principal axis, rotational rates, dilatation etc.<br>The columns of the file are structured as below:</li>
@@ -296,7 +298,137 @@ $>./gmtstrainplot.sh -jpg -str strain_info.dat -psta -l
         </samp></pre>
 
         <h1 id="bck_and_algorithms">TODO: Background and Algorithms</h1>
-    </div>
+        <p>Given a set of stations (aka point on earth's surface) with their
+        corresponding east and north velocities, we can estimate (or compute)
+        strain tensor parameters, by solving for the system
+        $$
+        \begin{bmatrix}
+            V_{x,S_1} \\ 
+            V_{y,S_1} \\ 
+            V_{x,S_2} \\ 
+            V_{y,S_2} \\ 
+            \cdots \\ 
+            V_{x,S_n} \\ 
+            V_{y,S_n} \\ 
+        \end{bmatrix}
+        =
+        \begin{bmatrix}
+            1 & 0 & \Delta_{y_1}  & \Delta_{x_1} & \Delta_{y_1} & 0 \\
+            0 & 1 & -\Delta_{x_1} &  0           & \Delta_{x_1} & \Delta_{y_1} \\
+            1 & 0 & \Delta_{y_2}  & \Delta_{x_2} & \Delta_{y_2} & 0 \\
+            0 & 1 & -\Delta_{x_2} &  0           & \Delta_{x_2} & \Delta_{y_2} \\
+            \cdots & \cdots & \cdots & \cdots & \cdots & \cdots \\
+            1 & 0 & \Delta_{y_n}  & \Delta_{x_n} & \Delta_{y_n} & 0 \\
+            0 & 1 & -\Delta_{x_n} &  0           & \Delta_{x_n} & \Delta_{y_n} \\
+        \end{bmatrix}
+        \begin{bmatrix}
+            U_{x} \\ 
+            U_{y} \\ 
+            \omega \\ 
+            \tau_{x} \\ 
+            \tau_{xy} \\ 
+            \tau_{y} \\ 
+        \end{bmatrix}
+        $$
+        at any given location \(R\); \(\Delta_{x_i}\) and \(\Delta_{y_i}\) are the displacement
+        components between station \(i\) and the point \(R\). A minimum of 3 stations
+        is required to compute the parameters; if more than 3 stations are used, then
+        the parameters are estimated (here, using a least squares approach).</p>
+        <h2>Covariance Matrix</h2>
+        <p>Assuming that we have variance information for the station velocities (and a Gaussian distribution),
+        we can add the covariance matrix \(C\) of the velocity data in the system.
+        In the simplest case, \(C\) is a diagonal matrix, with the velocity component
+        standard deviations as its elements,
+        $$
+        C = {\sigma_{0}}^2 
+        \begin{bmatrix}
+            (1/\sigma_{V_{x,S_{1}}})^2  & 0                      & 0                      & \cdots & 0 \\
+            0                       & (1/\sigma_{V_{y,S_{1}}})^2 & 0                      & \cdots & 0 \\
+            0                       & 0                      & (1/\sigma_{V_{x,S_{2}}})^2 & \cdots & 0 \\
+            \vdots                  & \vdots                 & \vdots                 & \ddots & \vdots \\
+            0                       & 0                      & 0                      & \cdots & (1/\sigma_{V_{y,S_{n}}})^2 \\
+        \end{bmatrix}
+        $$</p>
+        <p>Shen et al, 2015, propose a more elaborate approach, reconstructing the 
+        covariance matrix by multiplying a weighting function to each of its diagonal terms.
+        The weighting function \(G_i = L_i \cdot Z_i\), in which \(L_i\) and \(Z_i\) 
+        are functions of distance and spatial coverage dependent, respectively. 
+        The final covariance matrix becomes then, \(C = C \cdot G^{-1}\) or, since its diagonal,
+        \(C_i = C_i \cdot {G_i}^{-1}\)</p>
+        <div class="alert alert-info">
+            <strong>Info</strong> Note that covariance matrices are only used with <kbd>--method=shen</kbd>.
+        </div>
+        <h3>Distance-dependent Weighting</h3>
+        <p>For distance dependent weighting \(L_i\), we can use two formulas,
+        $$L_i = \exp(-{\Delta}R_i^{2} / D^{2})$$ or $$L_i = 1/(1 + {\Delta}R_i^{2} / D^{2})$$
+        n which a spatial smoothing parameter \(D\) is introduced (see 
+        <a href="#finding_optimal_d">Finding the optimal smoothing parameter</a>). According to Shen et al, 2015, 
+        <blockquote>
+        Both functions allow reduced weight of the data as distance
+        increases. The difference between the two is that the Gaussian
+        function reduces the weight at a faster pace with distance \(\Delta R_i\)
+        than that of the quadratic function. Depending on the data
+        quality, the Gaussian function can offer a relatively finer resolution
+        of the interpolation result if the data are clean and smooth. On
+        the other hand, if the data are somewhat heterogeneous, the
+        quadratic function is relatively more conservative and provides
+        a more smoothed solution, especially for regions in which data
+        are sparsely distributed.
+        </blockquote></p>
+        <div class="container"> 
+            <div id="chart_div">
+                <canvas id="myChart"></canvas>
+            </div>
+            <div id="dparam_div">
+                Parameter D:
+                <input type="number" id="dparam" value="15">
+                <button onclick="submit_data();">Try it</button>
+            </div>
+        </div>
+        <h3 id="finding_optimal_d">Finding the optimal smoothing parameter \(D\)</h3>
+        <p>To actually compute the distance-dependent weights \(L_i\), we need the
+        smoothing coefficient \(D\). Users have two options,
+        <ul>
+            <li>either pass in the parameter value as a command line option via <kbd>--d-param</kbd>, or</li>
+            <li>search for an optimal \(D\) value, given the range \(D_{min}\), \(D_{max}\), \(D_{step}\) and the limit value \(W_t\) (via <kbd>--dmin</kbd>, <kbd>--dmax</kbd>, <kbd>--dstep</kbd> and <kbd>--Wt</kbd>)</li>
+        </ul>
+        When searching for an optimal \(D\) value, we use the approach introduced by
+        Shen et al, 2007; for every \(D\) value within the range \([D_{min}, D_{max})\) with a step of \(D_{step}\),
+        <ol>
+            <li>we filter the station list, based on the cut-off distance, see <a href="#filtering_stations">Filtering Stations</a>,</li>
+            <li>compute distance-dependent and spatial weights, \(L_i\) and \(Z_i\) respectively, for every station</li>
+            <li>compute the sum \(W = 2 \cdot \sum_{n=1}^{\#sta} Z_i * L_i \)</li>
+            <li>repeat the process for the next \(D\) value if \( int(W) < int(W_t) \), else current \(D\) value is optimal</li>
+        </ol>
+        If we reach the end of the range and no optimal value for \(D\) is found, then no tensor
+        parameters are estimated for the current point.</p>
+        <h3 id="filtering_stations">Filtering Stations</h3>
+        <p>Any data points with distance exceeding a threshold value \(L_{max}\)
+        are excluded from the estimation. The value of \(L_{max}\) depends on the
+        Distance-dependent weighting function; if a Gaussian approach is selected, then
+        \(L_{max}=2.15 \cdot D km \), while for the quadratic approach \(L_{max}=10 \cdot D km \)
+        , where \(D\) is the spatial smoothing parameter.</p>
+        <h3>Spatial Weights</h3>
+        <p>The spatial weighting function measures the azimuth span of the site 
+        with respect to each of the data points. The azimuth span \(\theta\) for 
+        data point \(i\) is measured between two strike directions of the \(i−1\)
+        and \(i+1\) data points in its neighborhood.</p>
+        <h2>Strain Tensor Parameters</h2>
+        <p>The computation/estimation process, solves for the vector of parameters
+        \([U_{x}, U_{y}, \omega, \tau_{x}, \tau_{xy}, \tau_{y}]^T\). The rest
+        parameters of interest, written in the output file <a href="#output_files"></a>,
+        are computed as follows:
+         $$ \tau_{max}= \sqrt{ {\tau_{xy}}^2 + {e_{diff}}^2 } $$
+         $$ e_{max}  = e_{mean} + \tau_{max} $$
+         $$ e_{min}  = e_{mean} - \tau_{max} $$
+         $$ azim  = 45 - 180 + 90 + \frac{-atan2(\tau_{xy}, e_{diff})}{2} $$
+         $$ dilatation = \tau_{x} + \tau_{y} $$
+         $$ second invariant = \sqrt{ {\tau_{x}}^2 + {\tau_{xy}}^2 + {\tau_{y}}^2 }$$
+         where,
+         $$ e_{mean} = \frac{\tau_{x}+\tau_{y}}{2} $$
+         $$ e_{diff} = \frac{\tau_{x}-\tau_{y}}{2} $$
+        </p>
+        <!--
     <div class="container"> 
         <h2>Strain Weighting Functions - Demo</h2>
         <div id="chart_div">
@@ -321,6 +453,7 @@ $>./gmtstrainplot.sh -jpg -str strain_info.dat -psta -l
             <canvas id="myChart2"></canvas>
         </div>
     </div>
+    -->
   <h2 id="contributing">Contributing</h2>
     <ol>
       <li>Create an issue and describe your idea</li>
@@ -366,4 +499,5 @@ $>./gmtstrainplot.sh -jpg -str strain_info.dat -psta -l
       <li><p>Python Software Foundation. Python Language Reference, version 2.7. Available at http://www.python.org</p></li>
       <li><p><a href="http://gmt.soest.hawaii.edu/">The Generic Mappting Tools - GMT</a></p></li>
     </ul>
+    <script type="text/javascript" src="straindoc.js"></script>
 </body>

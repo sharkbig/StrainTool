@@ -1,4 +1,6 @@
-var datapoints = [];
+//  The following is for creating and updating the distance-dependent
+//+ weighting function L
+var datapoints = []; // distance in km
 for (i = 0; i < 500;  i++) { datapoints.push(i.toString()); }
 var d_param    = 15;
 var q_weights  = quadratic_weights(datapoints, d_param);
@@ -77,6 +79,7 @@ function submit_data() {
     qw = quadratic_weights(datapoints, d_param);
     update_chart(myChart, gw, qw);
 }
+
 /* RADAR PLOT */
 var radar_datapoints = [];
 var radar_data       = [];
