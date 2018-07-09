@@ -19,6 +19,7 @@ from pystrain.iotools.iparser import *
 import pystrain.grid
 ############################################## ploting
 from scipy.spatial import Delaunay
+from scipy import __version__ as scipyver
 
 Version = 'StrainTensor.py Version: 1.0-beta (pre-release)'
 
@@ -44,12 +45,20 @@ def write_station_info(sta_lst, filename='station_info.dat'):
     return
 
 def print_model_info(fout, cmd, clargs):
+    print('{:}SYS INFO{:}'.format('_'*20, '_'*50), file=fout)
     print('{:}'.format(Version), file=fout)
+    print('Python   Version: {:}'.format(sys.version), file=fout)
+    print('pystrain Version: {:}'.format(pystrain.__version__), file=fout)
+    print('Numpy    Version: {:}'.format(numpy.version.version), file=fout)
+    print('Scipy    Version: {:}'.format(scipyver), file=fout)
+    print('\n{:}CMD INFO{:}'.format('_'*20, '_'*50), file=fout)
     print('Command used:\n\t{:}'.format(' '.join(cmd)), file=fout)
     print('Run at: {:}'.format(datetime.now().strftime('%c')), file=fout)
+    print('\n{:}MODEL INFO{:}'.format('_'*20, '_'*48), file=fout)
     print('Command line switches/options parsed:', file=fout)
     for key in clargs:
         print('\t{:20s} -> {:}'.format(key, clargs[key]), file=fout)
+    print('\n{:}STATISTICS{:}'.format('_'*20, '_'*48), file=fout)
     return
 
 parser = argparse.ArgumentParser(
