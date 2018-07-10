@@ -360,6 +360,7 @@ else:
         print('{:+8.5f} {:8.5f}\n{:+8.5f} {:8.5f}\n{:+8.5f} {:8.5f}\n{:+8.5f} {:8.5f}'.format(*[ degrees(x) for x in [sta_list_ell[trng[0]].lon, sta_list_ell[trng[0]].lat, sta_list_ell[trng[1]].lon, sta_list_ell[trng[1]].lat, sta_list_ell[trng[2]].lon, sta_list_ell[trng[2]].lat, sta_list_ell[trng[0]].lon, sta_list_ell[trng[0]].lat]]), file=dlnout)
         # strain_list.append(sstr)
     dlnout.close()
+    if fstats: print('## No statistics available for Veis method ##', file=fstats)
 
 fout.close()
 write_station_info(sta_list_ell)

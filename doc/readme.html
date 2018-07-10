@@ -55,6 +55,13 @@
 
 <body data-spy="scroll" data-target="#toc">
 
+    <!--
+    <div class="jumbotron">
+      <h1>StrainTool</h1>
+      <p>Software to compute strain tensor parameters</p>
+    </div>
+    -->
+
     <div class="container">
         <div class="row">
         <!-- sidebar, which will move to the top on a small screen -->
@@ -391,7 +398,38 @@ $>./gmtstrainplot.sh -jpg -str strain_info.dat -psta -l
             Velocity covariance values, aka \(\sigma_{V_{x} V_{y}}\) are not considered while forming the covariance matrix \(C\), 
             even though the corresponding values are provided and read from the <a href="#input_files">input</a> file.
         </div>
-        <h3>Distance-dependent Weighting</h3>
+        <h2>Shen et al, 2015</h2>
+        <p>The following paragraphs, describe the estimation process when using <em>shen</em> method
+        (i.e. <kbd>--method=shen</kbd>) as the algorithm of choice.</p>
+        <p>In coarse lines, when choosing the <em>shen</em> method, the program will
+        'girddify' the region of choise and estimate one strain tensor at the centre of each cell.
+        The region of choise can be given via the <kbd>--region</kbd> switch, using
+        minimum and maximum longtitude and latitude as decimal degrees, using '/' as
+        delimeter. E.g. <code>[...] --region=21.0/23.5/36.0/38.5 [...]</code>. If the region
+        is not specified, then the maximum and minimum longtitude values will be extracted from the
+        list of input stations, aka the region will be defined to include all stations
+        within the input file.</p>
+        <p>The user can specify the grid step size, both in x and y components, via the
+        <kbd>--x-grid-step</kbd> and <kbd>--y-grid-step</kbd> switches respectively.
+        The step sizes should be given in decimal degrees and if not set, have a
+        default value of \(0.5 deg.\)</p>
+        <p>The program will try to estimate strain tensor parameters at the centre of
+        each cell. The algorithm depends on a number of options that the user can
+        define via the command line arguments. Using a spatial smoothing coefficient
+        \(D\), either defined by the user (<kbd>--d-param</kbd>) or found by the
+        program (see <a href="#finding_optimal_d">Finding the optimal smoothing parameter \(D\)</a>),
+        the covariance matrix will be formed, using <a href="#distance_weights">distance-dependent weighting</a> \(L_i\),
+        <a href="#spatial_weights">spatial weighting</a> \(Z_i\) and the data variance information \(C_i\).
+        The final covariance matrix, will be \(C \cdot G^{-1}\) where \(G_i = L_i \cdot Z_i\).</p>
+        <p>Strain tensor parameters will be estimated using a (weighted) least squares approach;
+        Six fundamental parameters are solved for and in a next step values of interest
+        are computed (see <a href="#strain_ttensor_parameters">Strain Tensor Parameters</a>).
+        Computed values are written to the output file <code>strain_info.dat</code> (see <a href="#output_files">Output Files</a>).</p>
+        <div class="alert alert-warning" role="alert">Note that there may be (grid) cells where the estimation is
+        not possible under the criteria specified (e.g. and optiaml value for \(D\) could not be found
+        within the specified range). These nodes will not be written in the output files.</div>
+
+        <h3 id="distance_weights">Distance-dependent Weighting</h3>
         <p>For distance dependent weighting \(L_i\), we can use two formulas,
         $$L_i = \exp(-{\Delta}R_i^{2} / D^{2})$$ or $$L_i = 1/(1 + {\Delta}R_i^{2} / D^{2})$$
         n which a spatial smoothing parameter \(D\) is introduced (see 
@@ -442,12 +480,33 @@ $>./gmtstrainplot.sh -jpg -str strain_info.dat -psta -l
         Distance-dependent weighting function; if a Gaussian approach is selected, then
         \(L_{max}=2.15 \cdot D km \), while for the quadratic approach \(L_{max}=10 \cdot D km \)
         , where \(D\) is the spatial smoothing parameter.</p>
-        <h3>Spatial Weights</h3>
+        <h3 id="spatial_weights">Spatial Weights</h3>
         <p>The spatial weighting function measures the azimuth span of the site 
         with respect to each of the data points. The azimuth span \(\theta\) for 
         data point \(i\) is measured between two strike directions of the \(i−1\)
         and \(i+1\) data points in its neighborhood.</p>
-        <h2>Strain Tensor Parameters</h2>
+        <div class="container"> 
+            <div id="chart_div2">
+                <canvas id="myChart2"></canvas>
+            </div>
+        </div>
+        <h2>Veis</h2>
+        <p>When using <kbd>--method=veis</kbd> a different aproach is followed. The region is
+        split into <a href="https://en.wikipedia.org/wiki/Delaunay_triangulation">Delaunay triangles</a>
+        at the barycentre of which a strain tensor is computed. Note that this approach
+        only uses three points (aka the triangle points) to calculate tensor parameters, so
+        <mark>the parameters are computed and not estimated</mark>. Covariance info is
+        not used at all with this approach.</p>
+        <p>Note that when using this approach,
+        <ul>
+        <li>No sigma values will be available in the <code>strain_info.dat</code> file (remember this a computation not an estimation),</li>
+        <li>Delauney triangulation info will be written in a file named <code>delaunay_info.dat</code>,</li>
+        <li>if the user requested a statistics file (aka <kbd>--generate-statistics</kbd>), then this file will have
+        no statistics info; it will only report system and command info</li>
+        </ul></p>
+        <h2>Estimating One Strain Tensor</h2>
+        <p>TODO</p>
+        <h2 id="strain_tensor_parameters">Strain Tensor Parameters</h2>
         <p>The computation/estimation process, solves for the vector of parameters
         \([U_{x}, U_{y}, \omega, \tau_{x}, \tau_{xy}, \tau_{y}]^T\). The rest
         parameters of interest, written in the output file <a href="#output_files"></a>,
@@ -462,32 +521,7 @@ $>./gmtstrainplot.sh -jpg -str strain_info.dat -psta -l
          $$ e_{mean} = \frac{\tau_{x}+\tau_{y}}{2} $$
          $$ e_{diff} = \frac{\tau_{x}-\tau_{y}}{2} $$
         </p>
-        <!--
-    <div class="container"> 
-        <h2>Strain Weighting Functions - Demo</h2>
-        <div id="chart_div">
-            <canvas id="myChart"></canvas>
-        </div>
-        <div id="dparam_div">
-            Parameter D:
-            <input type="number" id="dparam" value="15">
-            <button onclick="submit_data();">Try it</button>
-            <div>
-            <h3>Weighting Functions</h3>
-            <p>The weighting functions are computed as follows:
-            Gaussian  Weighting Function: $$L_i = \exp(-{\Delta}R_i^{2} / D^{2})$$
-            Quadratic Weighting Function: $$L_i = 1/(1 + {\Delta}R_i^{2} / D^{2})$$
-            </p>
-            </div>
-        </div>
-    </div>
-    <div class="container"> 
-        <h2>Azimouthal Weighting Function - Demo</h2>
-        <div id="chart_div2">
-            <canvas id="myChart2"></canvas>
-        </div>
-    </div>
-    -->
+        
         <h1 id="contributing">Contributing</h1>
         <ol>
           <li>Create an issue and describe your idea</li>

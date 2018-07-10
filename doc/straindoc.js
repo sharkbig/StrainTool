@@ -42,7 +42,7 @@ var myChart = new Chart(ctx, {
                 display: true,
                 scaleLabel: {
                     display: true,
-                    labelString: 'Value'
+                    labelString: 'Weight'
                 },
                 ticks: {
                     suggestedMin: 0e0,
@@ -122,7 +122,7 @@ var myChart2 = new Chart(ctx2, {
                 display: true,
                 scaleLabel: {
                     display: true,
-                    labelString: 'Value'
+                    labelString: 'Weight'
                 },
                 ticks: {
                     suggestedMin: 0e0,
