@@ -52,27 +52,39 @@
             white-space: pre-wrap;
             word-wrap: break-word;
         }
+        .page-header-p {
+            font-family: verdana, "Lucida Console", Monospace;
+            font-size:3vw;
+            max-height: 100%;
+        }
     </style>
 </head>
 
 <body data-spy="scroll" data-target="#toc">
 
-<div class="container-fluid">
-    <div class="jumbotron">
-        <div class="row">
-            <div class="col-md-2">
-                <h1>StrainTool</h1>
-            </div>
-            <div class="col-md-2">
+<div class="container-fluid" style="maxheight: 20%; background-color: #e6f2ff;">
+        <div class="row row-eq-height">
+            <div class="col-md-6">
+                <p class="page-header-p">StrainTool</p>
+                <small class="text-muted">Github Link</small>
                 <a class="btn btn-lg btn-social-icon btn-git" href="https://github.com/DSOlab/StrainTool" title="StrainTool on github">
                 <span class="fa fa-github"></span></a>
             </div>
+            <div class="col-md-3"></div>
+            <div class="col-md-1">
+                <img src="img/eaa.jpg" class="img-fluid" style="max-width: 100%; height: auto;">
+            </div>
+            <div class="col-md-1">
+                <img src="img/epos.jpg" class="img-fluid" style="max-width: 100%; height: auto;">
+            </div>
+            <div class="col-md-1">
+                <img src="img/DSOtrans.png" class="img-fluid" style="max-width: 100%; height: auto;">
+            </div>
         </div>
-            <p>Software to compute strain tensor parameters</p>
-    </div>
+        <hr>
 </div>
 
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
         <!-- sidebar, which will move to the top on a small screen -->
             <div class="col-sm-2">
@@ -80,7 +92,7 @@
             </div>
 
         <!-- main content area -->
-        <div class="col-sm-10">
+        <div class="col-sm-8">
     
         <h1>StrainTool</h1>
         <p>Software package to calculate strain tensor parameters</p>
