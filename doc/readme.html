@@ -16,6 +16,7 @@
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML' async></script>
     <!-- add after bootstrap.min.js -->
     <script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.0/dist/bootstrap-toc.min.js"></script>
+    <link rel="icon" href="img/DSOtrans.png" type="image/x-icon">
     <style>
         .container {
             margin: 15px auto;
@@ -57,28 +58,78 @@
             font-size:3vw;
             max-height: 100%;
         }
+        button{
+	    margin: 13px;
+	    box-shadow: 1px 2px 5px #000000; 
+	}
+        a.buttons {
+	-webkit-font-smoothing: antialiased;
+	background: url(img/arrow-down.png) no-repeat;
+	font-weight: normal;
+	color: #fff;
+/* 	text-shadow: rgba(0, 0, 0, 0.4) 0 -1px 0; */
+	padding: 2px 2px 2px 22px;
+	height: 30px;
+	}
+
+	a.github {
+		background: url(img/octocat-small.png) no-repeat 1px;
+	}
+
+	a.buttons:hover {
+		color: #fff;
+		text-decoration: none;
+	}
+
     </style>
 </head>
 
 <body data-spy="scroll" data-target="#toc">
 
-<div class="container-fluid" style="maxheight: 20%; background-color: #e6f2ff;">
-        <div class="row row-eq-height">
-            <div class="col-md-6">
+<div class="container-fluid" style="maxheight: 15%; background-color: #99ccff;"> <!--#e6f2ff-->
+        <div class="row row-eq-height" align="center">
+	    <div class="col-md-2" >
+	      <div align="left">
+		<div class="col-md-1"><a href="https://github.com/DSOlab/StrainTool/blob/master/LICENSE"><img src="http://img.shields.io/badge/license-MIT-brightgreen.svg" alt="License MIT" /></a></div>
+		  <div class="col-md-2"><a href="https://travis-ci.org/DSOlab/StrainTool"><img src="https://travis-ci.org/DSOlab/StrainTool.svg?branch=travis_patch" alt="Build Status" /></a></div>
+		  <div class="col-md-2"><a href="https://github.com/DSOlab/StrainTool/releases/latest"><img src="https://img.shields.io/github/release/DSOlab/StrainTool.svg" alt="" /></a></div>
+		  <div class="col-md-2"><a href="https://github.com/DSOlab/StrainTool/tags"><img src="https://img.shields.io/github/tag/DSOlab/StrainTool.svg" alt="" /></a></div>
+		  <div class="col-md-2"><a href="https://github.com/DSOlab/StrainTool/stargazers"><img src="https://img.shields.io/github/stars/DSOlab/StrainTool.svg" alt="" /></a></div>
+		  <div class="col-md-2"><a href="https://github.com/DSOlab/StrainTool/network"><img src="https://img.shields.io/github/forks/DSOlab/StrainTool.svg" alt="" /></a></div>
+		  <div class="col-md-2"><a href="https://github.com/DSOlab/StrainTool/issues"><img src="https://img.shields.io/github/issues/DSOlab/StrainTool.svg" alt="" /></a></div>
+		  <div class="col-md-2"><a href="https://doi.org/10.5281/zenodo.1297565"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.1297565.svg" alt="DOI"></a></div>
+		</div>
+	    </div>
+            <div class="col-md-8" >
                 <p class="page-header-p">StrainTool</p>
-                <small class="text-muted">Github Link</small>
+                <p> A software package to estimate strain tensor parameters</p>
+                <!--<small class="text-muted">Github Link</small>
                 <a class="btn btn-lg btn-social-icon btn-git" href="https://github.com/DSOlab/StrainTool" title="StrainTool on github">
-                <span class="fa fa-github"></span></a>
+                <span class="fa fa-github"></span></a>-->
+                <div align="center">
+		    <button type="button" class="btn btn-danger"><a class="buttons" href="https://github.com/DSOlab/StrainTool/zipball/master">Download ZIP</a></button>
+		    <button type="button" class="btn btn-danger"><a class="buttons" href="https://github.com/DSOlab/StrainTool/tarball/master">Download TAR</a></button>
+		    <button type="button" class="btn btn-success"><a class="buttons github" href="https://github.com/DSOlab/StrainTool">View on GitHub</a></button>
+                </div>
             </div>
-            <div class="col-md-3"></div>
-            <div class="col-md-1">
-                <img src="img/eaa.jpg" class="img-fluid" style="max-width: 100%; height: auto;">
-            </div>
-            <div class="col-md-1">
-                <img src="img/epos.jpg" class="img-fluid" style="max-width: 100%; height: auto;">
-            </div>
-            <div class="col-md-1">
-                <img src="img/DSOtrans.png" class="img-fluid" style="max-width: 100%; height: auto;">
+	    <div class="col-md-2">
+	    <div class="row row-eq-height">
+	        <div class="col-md-6">
+		    <a href="https://www.epos-ip.org" target="blank"><img src="img/EPOS_logo_small_591_0.png" class="img-fluid" style="max-width: 100%; height: auto; align: center;"></a>
+		</div>
+		<div class="col-md-6">
+		    <a href="https://www.epos-ip.org/tcs/gnss-data-and-products" target="_blank"><img src="img/EPOS_IP_TCS_10_b_transp.png" class="img-fluid" style="max-width: 60%; height: auto; align: center;"></a>
+		</div>
+	      </div>
+                
+	      <div class="row row-eq-height">
+		<div class="col-md-6">
+		    <a href="http://www.noa.gr/index.php?lang=en" target="_blank"><img src="img/eaa.jpg" class="img-fluid" style="max-width: 100%; height: auto; align: center;"></a>
+		</div>
+		<div class="col-md-6">
+		    <a href="http://portal.survey.ntua.gr/main/labs/hgeod/DSO/DSOmain-en.htm" target="_blank"><img src="img/DSOtrans.png" class="img-fluid" style="max-width: 100%; height: auto; align: center;"></a>
+		</div>
+	      </div>
             </div>
         </div>
         <hr>
@@ -93,19 +144,10 @@
 
         <!-- main content area -->
         <div class="col-sm-8">
+       
     
-        <h1>StrainTool</h1>
-        <p>Software package to calculate strain tensor parameters</p>
-
-<!--
-<p><a href="https://github.com/DSOlab/StrainTool/blob/dev-danast/LICENSE"><img src="http://img.shields.io/badge/license-MIT-brightgreen.svg" alt="License MIT" /></a>
-<a href="https://github.com/DSOlab/StrainTool/releases/latest"><img src="https://img.shields.io/github/release/DSOlab/StrainTool.svg" alt="" /></a>
-<a href="https://github.com/DSOlab/StrainTool/tags"><img src="https://img.shields.io/github/tag/DSOlab/StrainTool.svg" alt="" /></a>
-<a href="https://github.com/DSOlab/StrainTool/stargazers"><img src="https://img.shields.io/github/stars/DSOlab/StrainTool.svg" alt="" /></a>
-<a href="https://github.com/DSOlab/StrainTool/network"><img src="https://img.shields.io/github/forks/DSOlab/StrainTool.svg" alt="" /></a>
-<a href="https://github.com/DSOlab/StrainTool/issues"><img src="https://img.shields.io/github/issues/DSOlab/StrainTool.svg" alt="" /></a></p>
-<a href="https://zenodo.org/badge/latestdoi/106276451"><img src="https://zenodo.org/badge/106276451.svg" alt="DOI"></a>
--->
+<!--        <h1>StrainTool</h1>
+        <p>A software package to estimate strain tensor parameters</p>-->
 
         <h1>General</h1>
         <p>StrainTool allows the estimation of Strain Tensor parameters, on the
@@ -186,6 +228,46 @@
         To quickly verify that the installation succeded, you can try to load the module,
         using the command: <pre id="inline-code"><code>$> python -c "import pystrain"</code></pre>
         No error message should be displayed on screen.</div>
+        
+        <h2 id="installation-tests">Installation tests</h2>
+	<p>The following scenarios have been tested to validatethe installation procedure</p>
+	<table  class="table">
+	    <thead>
+	    <tr class="header">
+	    <th style="text-align: center;">OS</th>
+	    <th style="text-align: center;">Python 2.7</th>
+	    <th style="text-align: center;">Python 3.6</th>
+	    <th style="text-align: center;">GMT 5.2.1</th>
+	    </tr>
+	    </thead>
+	    <tbody>
+	    <tr class="odd">
+	    <td style="text-align: center;">Fedora</td>
+	    <td style="text-align: center;">&#10004;</td>
+	    <td style="text-align: center;"></td>
+	    <td style="text-align: center;">&#10004;</td>
+	    </tr>
+	    <tr class="even">
+	    <td style="text-align: center;">Manjaro</td>
+	    <td style="text-align: center;"></td>
+	    <td style="text-align: center;">&#10004;</td>
+	    <td style="text-align: center;">&#10004;</td>
+	    </tr>
+	    <tr class="odd">
+	    <td style="text-align: center;">Ubuntu</td>
+	    <td style="text-align: center;">&#10004;</td>
+	    <td style="text-align: center;">&#10004;</td>
+	    <td style="text-align: center;">&#10004;</td>
+	    </tr>
+	    <tr class="even">
+	    <td style="text-align: center;">Windows 10</td>
+	    <td style="text-align: center;">&#10004;</td>
+	    <td style="text-align: center;"></td>
+	    <td style="text-align: center;"></td>
+	    </tr>
+	    </tbody>
+	</table>
+        
         <h2 id="straintensor_prg_example">Example</h2>
         <p>To validate that the installation has succeded, you can run a "test case"
         scenario. Under the folder <code>data/</code>, you will find a file named
@@ -205,7 +287,28 @@
         Verify that the files you have just created (placed under <code>bin/</code>)
         contain the same results as the "reference" files (this can be very easily
         performed using the <a href="https://www.gnu.org/software/diffutils/">diff</a> command).</p>
-        <h3>TODO: plot example files and compare</h3>
+        <h3>Plot example files and compare</h3>
+	  <table  class="table">
+	    <thead>
+	    <tr class="header">
+	    <th style="text-align: center;">Principal axis</th>
+	    <th style="text-align: center;">Shear strain</th>
+	    <th style="text-align: center;">Delaunay triangles</th>
+	    </tr>
+	    </thead>
+	    <tbody>
+    	    <tr class="odd">
+	    <td style="text-align: left;"><code>$> ./gmtstrainplot.sh -jpg -str strain_info.dat -psta -l -o output_str</code> </td>
+	    <td style="text-align: left;"><code>$> ./gmtstrainplot.sh -jpg -gtot strain_info.dat -psta -l -o output_gtot</code> </td>
+	    <td style="text-align: left;"><code>$> ./gmtstrainplot.sh -jpg -str strain_info.dat -psta -l -o output_str -deltr</code> </td>
+	    </tr>
+	    <tr class="even">
+	    <td style="text-align: center;"><img src="img/output_str.jpg" class="img-fluid" style="max-width: 100%; height: auto; align: center;"></td>
+	    <td style="text-align: center;"><img src="img/output_gtot.jpg" class="img-fluid" style="max-width: 100%; height: auto; align: center;"></td>
+	    <td style="text-align: center;"><img src="img/output_str_veis.jpg" class="img-fluid" style="max-width: 100%; height: auto; align: center;"></td>
+	    </tr>
+	    </tbody>
+	  </table>
         
         <h1>How to use StrainTensor.py</h1>
         <p><code>StrainTensor.py</code> computes strain tensor parameters on a selected region. The
@@ -296,7 +399,8 @@ Latitude Longtitude vx+dvx  vy+dvy   w+dw     exx+dexx    exy+dexy    eyy+deyy  
    deg       deg     mm/yr   mm/yr  nrad/yr  nstrain/yr  nstrain/yr  nstrain/yr  nstrain/yr  nstrain/yr  nstrain/yr    deg.    nstrain/yr    nstrain/yr</samp></pre>
 	    <li><b>station_info.dat</b> Station's data used for the calculation of strain tensor are written at this file. Format is: </li>
                  <pre id="block-samp"><samp>
-Code Longtitude Latitude Ve Vn</samp></pre>
+Code    Longtitude Latitude  Ve   Vn   dVe  dVn 
+string      deg       deg          mm/yr</samp></pre>
 	    <li><b>strain_stats.dat</b> This file is only created if the <kbd>--generate-statistics</kbd> switch is on.
             The generated file will hold various information on the system, the command and options used, and statistics of the
             computation. This file can help users get a quick overview of the program's run.</li>
@@ -335,18 +439,22 @@ PLot station and velocitiess:
     -vsc [:=velocity scale] change valocity scale default 0.05
 
 Plot strain tensor parameters:
-     -str (strain file)[:= strains] Plot strain rates
-     -rot (strain file)[:= rots] Plot rotational rates
+     -str (strain file)[:= strains] Plot strain rates 
+     -rot (strain file)[:= rots] Plot rotational rates 
      -gtot(strain file)[:=shear strain] plot total shear strain rate contours
      -gtotaxes (strain file) dextral and sinistral max shear strain rates
      -dil (strainfile)[:= dilatation] Plot dilatation and principal axes
      -secinv (strain file) [:=2nd invariand] Plot second invariand
      -strsc [:=strain scale]
      -rotsc [:=rotational scales]
+  *for -gtot | -dil | -secinv use +grd to plot gridded data
+        ex:-gtot+grd 
+
 
 Other options:
      -o | --output : name of output files
      -l | --labels : plot labels
+     -mt | --map_title "title" : title map default none, use quotes
      -jpg : convert eps file to jpg
      -h | --help : help menu
         </samp></pre>
@@ -536,7 +644,7 @@ $>./gmtstrainplot.sh -jpg -str strain_info.dat -psta -l
          $$ \tau_{max}= \sqrt{ {\tau_{xy}}^2 + {e_{diff}}^2 } $$
          $$ e_{max}  = e_{mean} + \tau_{max} $$
          $$ e_{min}  = e_{mean} - \tau_{max} $$
-         $$ azim  = 45 - 180 + 90 + \frac{-atan2(\tau_{xy}, e_{diff})}{2} $$
+         $$ Az_{e_{max}}  = 90 + \frac{-atan2(\tau_{xy}, e_{diff})}{2} $$
          $$ dilatation = \tau_{x} + \tau_{y} $$
          $$ second invariant = \sqrt{ {\tau_{x}}^2 + {\tau_{xy}}^2 + {\tau_{y}}^2 }$$
          where,
@@ -547,12 +655,12 @@ $>./gmtstrainplot.sh -jpg -str strain_info.dat -psta -l
         <h1 id="contributing">Contributing</h1>
         <ol>
           <li>Create an issue and describe your idea</li>
-          <li><a href="https://github.com/demanasta/coulomb2gmt/network#fork-destination-box">Fork it</a></li>
+          <li><a href="https://github.com/DSOlab/StrainTool/network#fork-destination-box">Fork it</a></li>
           <li>Create your feature branch (<code>git checkout -b my-new-idea</code>)</li>
           <li>Commit your changes (<code>git commit -am 'Add some feature'</code>)</li>
           <li>Publish the branch (<code>git push origin my-new-idea</code>)</li>
           <li>Create a new Pull Request</li>
-          <li>Profit! :white<em>check</em>mark:</li>
+          <li>Profit! &#10004;</li>
         </ol>
 
         <h1 id="license">License</h1>
@@ -571,9 +679,13 @@ $>./gmtstrainplot.sh -jpg -str strain_info.dat -psta -l
         <blockquote>
           <p>Research Director | Institute of Geodynamics | National Observatory of Athens | <a href="mailto:aganas@gein.noa.gr">aganas@gein.noa.gr</a></p>
         </blockquote>
+        <p><strong>Prof. Demitris Paradissis</strong></p>
+        <blockquote>
+          <p>Professor NTUA | Dionysos Satellite Observatory - NTUA  | <a href="mailto:dempar@central.ntua.gr">dempar@central.ntua.gr</a></p>
+        </blockquote>
 
         <h1 id="changelog">ChangeLog</h1>
-        <p>The history of releases can be viewed at <a href="https://github.com/DSOlab/StrainTool/blob/dev-danast/.github/CHANGELOG.md">ChangeLog</a></p>
+        <p>The history of releases can be viewed at <a href="https://github.com/DSOlab/StrainTool/blob/master/.github/CHANGELOG.md">ChangeLog</a></p>
       
         <h1 id="acknowlegments">Acknowlegments</h1>
         <p><strong>EPOS IP - EPOS Implementation Phase</strong></p>
@@ -585,7 +697,7 @@ $>./gmtstrainplot.sh -jpg -str strain_info.dat -psta -l
           <li id="shen_et_al_2015"><p>Shen, Z.-K., M. Wang, Y. Zeng, and F. Wang, (2015), Strain determination using spatially discrete geodetic data, Bull. Seismol. Soc. Am., 105(4), 2117-2127, doi: 10.1785/0120140247</p></li>
           <li id="veis_et_al_1992"><p>Veis, G., Billiris, H., Nakos, B., and Paradissis, D. (1992), Tectonic strain in greece from geodetic measurements, C.R.Acad.Sci.Athens, 67:129--166</p></li>
           <li id="ref_python"><p>Python Software Foundation. Python Language Reference, version 2.7. Available at http://www.python.org</p></li>
-          <li id="ref_gmt"><p><a href="http://gmt.soest.hawaii.edu/">The Generic Mappting Tools - GMT</a></p></li>
+          <li id="ref_gmt"><p><a href="http://gmt.soest.hawaii.edu/">The Generic Mapping Tools - GMT</a></p></li>
         </ul>
     
         <!-- main content area -->
