@@ -443,7 +443,7 @@ then
   echo "...plot coatlines..."
   ################## Plot coastlines only ######################	
   gmt	psbasemap $range $proj  -B$frame:."$maptitle": -P -K > $outfile
-  gmt	pscoast -R -J -O -K -W0.25 -G225 -Df -Na $scale -U$logo_pos >> $outfile
+  gmt	pscoast -R -J -O -K -W0.25 -G225 -Df -Na $scale  >> $outfile
 # 	pscoast -Jm -R -Df -W0.25p,black -G195  -U$logo_pos -K -O -V >> $outfile
 # 	psbasemap -R -J -O -K --FONT_ANNOT_PRIMARY=10p $scale --FONT_LABEL=10p >> $outfile
 fi
@@ -542,8 +542,9 @@ then
   awk 'NR > 2 {print $2,$1,$19}' $pth2strinfo > tmpgtot
   # find min max and create cpt file
   T=`awk '{print $3}' tmpgtot | gmt info -Eh `
-  Tmax=$(pythonc "print(round(${T},-1)+10)")
-  gmt makecpt -Cjet -T0/${Tmax}/1 > inx.cpt
+  Tmax=$(pythonc "print(round(${T},1))")
+echo "[DEBUG] Tmax " ${Tmax}
+  gmt makecpt -Cjet -T0/${Tmax}/0.01 > inx.cpt
   
   if [ "${GRDDAT}" -eq 0 ]
   then
@@ -567,7 +568,7 @@ then
 #   gmt pscontour tmpgtot -R -J  -Cinx.cpt -I -O -K -V${VRBLEVM} >> ${outfile}
 #   gmt grdcontour tmpgtot_sample.grd -J -C25 -A50 -Gd3i/1 -S4 -O -K >> $outfile
 
-  scale_step=$(pythonc "print(round((${Tmax}/5.),-1))")
+  scale_step=$(pythonc "print(round((${Tmax}/5.),1))")
   gmt pscoast -R -J -O -K -W0.25 -Df -Na -U$logo_pos -V${VRBLEVM}>> $outfile
   gmt psscale -Cinx.cpt -D8/-1.1/10/0.3h -B${scale_step}/:"nstrain/y": -I -S \
       -O -K -V${VRBLEVM}>> $outfile
@@ -596,10 +597,12 @@ then
   awk 'NR > 2 {print $2,$1,$23}' $pth2strinfo >tmpdil
   # find min max and create cpt file
   T=`awk '{print $3}' tmpdil | gmt info -Eh `
-  Tmax=$(pythonc "print(round(${T},-1)+10)")
+  Tmax=$(pythonc "print(round(${T},0)+1)")
+echo "[DEBUG] Tmax " ${Tmax}
   T=`awk '{print $3}' tmpdil | gmt info -El `
-  Tmin=$(pythonc "print(round(${T},-1)-10)")
-  gmt makecpt -Cjet -T${Tmin}/${Tmax}/1 > inx.cpt
+  Tmin=$(pythonc "print(round(${T},0)-1)")
+echo "[DEBUG] Tmin " ${Tmin}
+  gmt makecpt -Cjet -T${Tmin}/${Tmax}/0.01 > inx.cpt
 
   if [ "${GRDDAT}" -eq 0 ]
   then
@@ -613,7 +616,8 @@ then
   
 #   gmt grdcontour tmpdil_sample.grd -J -C25 -A50 -Gd3i/1 -S4 -O -K >> $outfile
 
-  scale_step=$(pythonc "print(round(((${Tmax}-${Tmin})/5.),-1))")
+  scale_step=$(pythonc "print(round(((${Tmax}-${Tmin})/5.e0),1))")
+echo "[DEBUG] DIL STEP " ${scale_step} 
   gmt pscoast -R -J -O -K -W0.25 -Df -Na -U$logo_pos >> $outfile
   gmt psscale -Cinx.cpt -D8/-1.1/10/0.3h -B${scale_step}/:"nstrain/y": -I -S \
       -O -K -V${VRBLEVM}>> $outfile
@@ -634,7 +638,7 @@ then
 fi
 
 # //////////////////////////////////////////////////////////////////////////////
-### PLOT SHEAR STRAIN RATES parameters
+### PLOT SECINV STRAIN RATES parameters
 if [ "$SECINV" -eq 1 ]
 then
   echo "...plot 2nd invariant..."
@@ -642,8 +646,9 @@ then
   awk 'NR > 2 {print $2,$1, $25}' $pth2strinfo >tmp2inv
   # find min max and create cpt file
   T=`awk '{print $3}' tmp2inv | gmt info -Eh `
-  Tmax=$(pythonc "print(round(${T},-1)+10)")
-  gmt makecpt -Cjet -T0/${Tmax}/1 > inx.cpt
+  Tmax=$(pythonc "print(round(${T},1))")
+echo "[DEBUG] Tmax " ${Tmax}
+  gmt makecpt -Cjet -T0/${Tmax}/0.01 > inx.cpt
   
   if [ "${GRDDAT}" -eq 0 ]
   then
@@ -657,7 +662,7 @@ then
   
 #   gmt grdcontour tmp2inv_sample.grd -J -C25 -A50 -Gd3i/1 -S4 -O -K >> $outfile
 
-  scale_step=$(pythonc "print(round((${Tmax}/5.),-1))")
+  scale_step=$(pythonc "print(round((${Tmax}/5.),1))")
   gmt pscoast -R -J -O -K -W0.25 -Df -Na -U$logo_pos >> $outfile
   gmt psscale -Cinx.cpt -D8/-1.1/10/0.3h -B${scale_step}/:"nstrain/y": -I -S \
       -O -K -V${VRBLEVM}>> $outfile
@@ -850,7 +855,7 @@ fi
 echo "$west $south 8,0,black 0 LB This image was produced using" \
   | gmt pstext -Jm -R -Dj0.1c/1.1c -F+f+a+j -K  -O -V${VRBLEVM} >> $outfile
 echo "$west $south 9,1,white 0 LB STRAINTOOL for EPOS" \
-  | gmt pstext -Jm -R -Dj0.2c/.65c -F+f+a+j -G165/0/236 -O -V${VRBLEVM} >> $outfile
+  | gmt pstext -Jm -R -Dj0.2c/.65c -F+f+a+j -G165/0/236 -O -U$logo_pos -V${VRBLEVM} >> $outfile
 
 
 #################--- Convert to other format ----###############################

@@ -19,8 +19,8 @@ outfile=output.ps
 west=2 #17 #19.5
 east=12 #30 #29
 south=41.5 #34
-north=49.5 #42
-projscale=5500000
+north=49 #42
+projscale=4500000
 frame=1
 
 # length of plot scale (Km)
@@ -35,9 +35,9 @@ vscmagn=2
 VSC=0.5
 
 strscmagn=5
-STRSC=.160
+STRSC=.10
 ROTSC=.6
-ROT_wedge_mag=.1  #(marcsec/yr)
+ROT_wedge_mag=0.1  #(marcsec/yr)
 # strsclon=20.4 #delete
 # strsclat=36.3 #delete
 
