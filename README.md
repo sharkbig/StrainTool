@@ -1,3 +1,8 @@
+# <span style="color:red"> Only for test case branch<span>
+
+* /data/ : new velocity fields for validation
+* /plot/ : `default-param.<region>` each file is for different regions
+<span style="color:red"> ** This branch is only for validation, will not merge with the master branch. **<span>
 # StrainTool
 
 Software package to calculate strain tensor parameters
@@ -11,6 +16,7 @@ Software package to calculate strain tensor parameters
 [![](https://img.shields.io/github/issues/DSOlab/StrainTool.svg)](https://github.com/DSOlab/StrainTool/issues)
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1297565.svg)](https://doi.org/10.5281/zenodo.1297565)
+
 # General
 
 StrainTool allows the estimation of Strain Tensor parameters, on the earth's crust, given a list of data point, aka points on the earth along with their tectonic velocities.
