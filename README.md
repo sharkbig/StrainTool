@@ -1,8 +1,11 @@
-# <span style="color:red"> Only for test case branch<span>
+> # Only for test case branch
+>
+> * /data/ : new velocity fields for validation
+> * /plot/ : `default-param.<region>` each file is for different regions
+>
+> **This branch is only for validation, will not merge with the master branch.**
 
-* /data/ : new velocity fields for validation
-* /plot/ : `default-param.<region>` each file is for different regions
-<span style="color:red"> ** This branch is only for validation, will not merge with the master branch. **<span>
+
 # StrainTool
 
 Software package to calculate strain tensor parameters
