@@ -14,7 +14,7 @@ ref_ell_dict = {
 }
 
 class Ellipsoid:
-    """A class to represent reference ellipsoids.
+    """ A class to represent reference ellipsoids.
 
         This class constructs reference ellipsoids, see
         https://en.wikipedia.org/wiki/Reference_ellipsoid
@@ -26,7 +26,7 @@ class Ellipsoid:
     """
 
     def __init__(self, name, a=None, f=None):
-        """Ellipsoid constructor.
+        """ Ellipsoid constructor.
 
             Constructor for Ellipsoid. You can either pass in a standard name
             (i.e. included in the ref_ell_dict dictionary), or construct a
@@ -149,7 +149,7 @@ class Ellipsoid:
         """
         if name == "e2"  : return self.eccentricity_squared()
         if name == "b"   : return self.semi_minor()
-        if name == "finv": return 1.0e0/self.f
+        if name == "finv": return 1e0/self.f
         raise AttributeError
 
 if __name__ == "__main__":

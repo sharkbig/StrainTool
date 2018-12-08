@@ -26,7 +26,7 @@ def dd2dms(dd):
     return cdeg,cmin,csec
 
 def utm2ell(E, N, zone, ell=Ellipsoid("wgs84"), lcm=None):
-    '''UTM to ellipsoidal coordinates.
+    ''' UTM to ellipsoidal coordinates.
 
         Convert UTM coordinates (i.e. Easting and Northing) to ellipsoidal
         coordinates (actualy latitude and longtitude).
@@ -99,7 +99,7 @@ def utm2ell(E, N, zone, ell=Ellipsoid("wgs84"), lcm=None):
     return lat, lon
 
 def ell2utm(lat, lon, ell=Ellipsoid("wgs84"), zone=None, lcm=None):
-    """Ellipsoidal coordinates to UTM.
+    """ Ellipsoidal coordinates to UTM.
 
         Convert ellipsoidal coordinates (actualy longtitude and latitude) to
         UTM coordinates (aka easting and northing).

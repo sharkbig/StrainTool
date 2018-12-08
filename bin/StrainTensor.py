@@ -299,7 +299,6 @@ if args.one_tensor:
     sstr.estimate()
     sys.exit(0)
 
-# strain_list = [] Probably we do not need to keep the tensors ...
 if args.method == 'shen':  ## Going for Shen algorithm ...
     ##  Construct the grid, in ellipsoidal coordinates --degrees--. If a region
     ##+ is not passed in, the grid.generate_grid will transform lon/lat pairs 

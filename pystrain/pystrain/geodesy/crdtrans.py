@@ -7,7 +7,7 @@ import numpy as np
 from pystrain.geodesy.ellipsoid import Ellipsoid
 
 def top2daz(north, east, up):
-    """Compute azimouth, zenith and distance from a topocentric vector.
+    """ Compute azimouth, zenith and distance from a topocentric vector.
 
         Given a topocentric vector (aka north, east and up components), compute
         the azimouth, zenith angle and distance between the two points.
@@ -28,7 +28,7 @@ def top2daz(north, east, up):
     return distance, a, zenith
 
 def car2top(xi, yi, zi, xj, yj, zj, ell=Ellipsoid("wgs84")):
-    """Cartesian to topocentric vector.
+    """ Cartesian to topocentric vector.
 
         Transform a vector expressed in cartesian coordinates to the topocentric,
         local system around point i (i.e. North(i), East(i), Up(i)).
@@ -52,27 +52,23 @@ def car2top(xi, yi, zi, xj, yj, zj, ell=Ellipsoid("wgs84")):
     """
     # Cartesian to ellipsoidal for reference point.
     phi_i, lamda_i, h_i = car2ell(xi, yi, zi, ell)
-
     # Trigonometric numbers.
     cosf = math.cos(phi_i)
     cosl = math.cos(lamda_i)
     sinf = math.sin(phi_i)
     sinl = math.sin(lamda_i)
-
     # Cartesian vector.
     dx = xj - xi
     dy = yj - yi
     dz = zj - zi
-
     # Topocentric vector.
     north = - sinf * cosl * dx - sinf * sinl * dy + cosf * dz
     east  = - sinl * dx        + cosl * dy
     up = cosf * cosl * dx + cosf * sinl * dy + sinf * dz
-
     return north, east, up
 
 def ell2car(phi, lamda, h, ell=Ellipsoid("wgs84")):
-    """Ellipsoidal to cartesian coordinates.
+    """ Ellipsoidal to cartesian coordinates.
 
         Convert Ellipsoidal coordinates (aka longtitude, latitude, height) to
         cartesian. Default ellipsoid is wgs84.
@@ -88,26 +84,22 @@ def ell2car(phi, lamda, h, ell=Ellipsoid("wgs84")):
     """
     # Eccentricity squared.
     e2 = ell.eccentricity_squared()
-
     # Trigonometric numbers.
     sinf = math.sin(phi)
     cosf = math.cos(phi)
     sinl = math.sin(lamda)
     cosl = math.cos(lamda)
-
     # Radius of curvature in the prime vertical.
     N = ell.N(phi)
-
     # Compute geocentric rectangular coordinates.
     x = (N+h) * cosf * cosl;
     y = (N+h) * cosf * sinl;
-    z = ((1.0e0-e2) * N + h) * sinf;
-
+    z = ((1e0-e2) * N + h) * sinf;
     # Finished.
     return x, y, z
 
 def car2ell(x, y, z, ell=Ellipsoid("wgs84")):
-    """Cartesian to ellipsoidal coordinates.
+    """ Cartesian to ellipsoidal coordinates.
     
         Cartesian to ellipsoidal coordinates (aka latitude, longtitude and
         height). Reference: Fukushima, T., "Transformation from Cartesian to 
@@ -130,24 +122,20 @@ def car2ell(x, y, z, ell=Ellipsoid("wgs84")):
     f = ell.f
     # Functions of ellipsoid parameters.
     aeps2 = a*a*1e-32
-    e2    = (2.0e0-f)*f
+    e2    = (2e0-f)*f
     e4t   = e2*e2*1.5e0
-    ep2   = 1.0e0-e2
+    ep2   = 1e0-e2
     ep    = math.sqrt(ep2)
     aep   = a*ep
-
     # Compute distance from polar axis squared.
     p2 = x*x + y*y
-
     # Compute longitude lamda.
     if  (p2 != 0):
         lamda = math.atan2(y,x);
     else:
         lamda = .0e0;
-
     # Ensure that Z-coordinate is unsigned.
     absz = abs(z)
-
     if (p2 > aeps2): # Continue unless at the poles
         # Compute distance from polar axis.
         p = math.sqrt(p2)
@@ -175,15 +163,12 @@ def car2ell(x, y, z, ell=Ellipsoid("wgs84")):
         s12 = s1*s1
         cp2 = cp*cp
         h = (p*cp+absz*s1-a*math.sqrt(ep2*s12+cp2))/math.sqrt(s12+cp2)
-
     else: # Special case: pole.
         phi = math.pi / 2e0
         h   = absz - aep
-
     # Restore sign of latitude.
     if (z < 0.e0):
         phi = -phi
-
     # Finished.
     return phi, lamda, h
 
