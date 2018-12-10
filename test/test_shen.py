@@ -10,6 +10,8 @@ from pystrain.strain import *
 from pystrain.geodesy.utm import *
 from pystrain.iotools.iparser import *
 import pystrain.grid
+import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap
 
 gps_file = sys.argv[1]
 xmin, xmax, ymin, ymax = 18.75,30.25,32.75,42.25
@@ -47,7 +49,7 @@ print('[DEBUG] Station list transformed to UTM.')
 ## Random point within limits
 slon = random.uniform(xmin, xmax)
 slat = random.uniform(ymin, ymax)
-clat, clon =  radians(slat), radians(slon)
+clat, clon = radians(slat), radians(slon)
 N, E, ZN, _ = ell2utm(clat, clon, Ellipsoid("wgs84"), utm_zone)
 assert ZN == utm_zone
 
@@ -58,7 +60,8 @@ sstr.estimate()
 cc  = Station(lon=sstr.__xcmp__, lat=sstr.__ycmp__)
 thetas = sstr.compute_theta_angles()
 W = sstr.make_weight_matrix()
-print("{:4s} {:10s} ({:5s},{:5s}) {:10s} {:10s} {:5s} {:7s} {:7s} {:7s}".format("name", "lweight", "exp", "div", "zweight", "distance","θ", "Wx", "Wy", "Wsum"))
+meanW = {}
+print("{:>4s} {:>10s} ({:>5s},{:>5s}) {:>10s} {:>10s} {:>5s} {:>7s} {:>7s} {:>7s}".format("name", "lweight", "exp", "div", "zweight", "distance","θ", "Wx", "Wy", "Wsum"))
 for idx, sta in enumerate(sstr.__stalst__):
     D = sstr.__options__['d_coef']
     dr  = cc.distance_from(sta)[2]/1e3
@@ -67,3 +70,35 @@ for idx, sta in enumerate(sstr.__stalst__):
     li_1 = exp(-dr*dr/(D*D))
     li_2 = 1e0/(1e0+(dr*dr/(D*D)))
     print("{:} {:10.3f} ({:5.3f},{:5.3f}) {:10.3f} {:10.1f} {:5.1f} {:7.3f} {:7.3f} {:7.2f}".format(sta.name, li, li_1, li_2, sstr.__zweights__[idx], dr, degrees(thetas[idx]), float(W[idx*2]), float(W[idx*2+1]), wsum))
+    meanW[sta.name] = (float(W[idx*2])+float(W[idx*2+1])) / 2e0
+
+#print("Stations not used")
+#names = [ s.name for s in sstr.__stalst__ ]
+#for s in sta_list_ell:
+#    if s.name not in names:
+#        dr  = cc.distance_from(s)[2]/1e3
+#        print("{:} {:10.1f}".format(s.name, dr))
+
+names = [ s.name for s in sstr.__stalst__ ]
+sta_list_ell = [ s for s in sta_list_ell if s.name in names ]
+
+lat0    = degrees(sum([ x.lat for x in sta_list_ell ])/len(sta_list_ell))
+lon0    = degrees(sum([ x.lon for x in sta_list_ell ])/len(sta_list_ell))
+lons    = [ degrees(x.lon) for x in sta_list_ell ]
+lats    = [ degrees(x.lat) for x in sta_list_ell ]
+lon_off = (max(lons)-min(lons))/10
+lat_off = (max(lats)-min(lats))/10
+my_map = Basemap(projection='merc', lat_0 = lat0, lon_0 = lon0, resolution = 'c', llcrnrlon=min(lons)-lon_off, llcrnrlat=min(lats)-lat_off, urcrnrlon=max(lons)+lon_off, urcrnrlat=max(lats)+lat_off)
+my_map.drawcoastlines()
+my_map.drawcountries()
+my_map.fillcontinents(color = 'coral')
+my_map.drawmapboundary()
+my_map.drawmeridians(numpy.arange(floor(min(lons)), math.ceil(max(lons)), 2), labels=[True,False,False,True])
+my_map.drawparallels(numpy.arange(floor(min(lats)), math.ceil(max(lats)), 2), labels=[False,True,True,False], fontsize=10)
+my_map.plot(clon, clat, markersize=12)
+for sta in sta_list_ell:
+    x, y = my_map(degrees(sta.lon), degrees(sta.lat))
+    my_map.plot(x, y, 'bo', markersize=10)
+    plt.text(x, y, sta.name+" {:5.2f}".format(meanW[sta.name]))
+    my_map.drawgreatcircle(slon,slat,degrees(sta.lon),degrees(sta.lat), linewidth=2,color='g')
+plt.show()
