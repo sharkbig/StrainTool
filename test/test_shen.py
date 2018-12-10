@@ -15,6 +15,7 @@ from mpl_toolkits.basemap import Basemap
 
 gps_file = sys.argv[1]
 xmin, xmax, ymin, ymax = 18.75,30.25,32.75,42.25
+cut_sta_out_of_region = True
 
 ##  Parse stations from input file; at input, station coordinates are in decimal
 ##+ degrees and velocities are in mm/yr.
@@ -26,6 +27,15 @@ if not os.path.isfile(gps_file):
 sta_list_ell = parse_ascii_input(gps_file)
 print('[DEBUG] Reading station coordinates and velocities from {}'.format(gps_file))
 print('[DEBUG] Number of stations parsed: {}'.format(len(sta_list_ell)))
+
+if cut_sta_out_of_region:
+    newl = []
+    for s in sta_list_ell:
+        dlon = math.degrees(s.lon)
+        dlat = math.degrees(s.lat)
+        if dlon > xmin and dlon < xmax and dlat > ymin and dlat < ymax:
+            newl.append(s)
+    sta_list_ell = newl
 
 ##  Make a new station list (copy of the original one), where all coordinates
 ##+ are in UTM. All points should belong to the same ZONE.
