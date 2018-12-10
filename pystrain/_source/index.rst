@@ -1,8 +1,7 @@
 .. pystrain documentation master file, created by
-   sphinx-quickstart on Mon May 28 12:15:50 2018.
+   sphinx-quickstart on Sun Dec  9 00:54:43 2018.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
-
 
 Welcome to pystrain's documentation!
 ====================================
@@ -11,11 +10,10 @@ Welcome to pystrain's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-.. automodule:: grid
-   :members:
-
-.. automodule:: geodesy.crdtrans
-   :members:
+   modules.rst
+   pystrain.geodesy.rst 
+   pystrain.iotools.rst 
+   pystrain.rst
 
 Indices and tables
 ==================

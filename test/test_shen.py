@@ -2,17 +2,10 @@
 #-*- coding: utf-8 -*-
 
 from __future__ import print_function
-############################################## standard libs
-import sys
-import os
-import time
-import random
+import sys, os, time, random, math
 from datetime import datetime
 from copy import deepcopy
-from math import degrees, radians, floor, ceil
-##############################################  numpy & argparse
 import numpy
-##############################################  pystrain
 from pystrain.strain import *
 from pystrain.geodesy.utm import *
 from pystrain.iotools.iparser import *
