@@ -55,26 +55,26 @@ done
 fi
 
 echo "[PLOTALL] ...plot horizontal velocities..."
-./gmtstrainplot.sh -jpg -vhor station_info.dat -psta -l -o ${prefix}output_vel${suffix}
+./gmtstrainplot.sh -jpg -vhor station_info.dat -psta -o ${prefix}output_vel${suffix}
 echo "[PLOTALL] ...plot principal axes of strain rates..."
-./gmtstrainplot.sh -jpg -str strain_info.dat -psta -l -o ${prefix}output_str${suffix}
+./gmtstrainplot.sh -jpg -str strain_info.dat -psta -o ${prefix}output_str${suffix}
 echo "[PLOTALL] ...plot rotational rates..."
-./gmtstrainplot.sh -jpg -rot strain_info.dat -psta -l -o ${prefix}output_rot${suffix}
+./gmtstrainplot.sh -jpg -rot strain_info.dat -psta -o ${prefix}output_rot${suffix}
 echo "[PLOTALL] ...plot dextral, sinistral maximum shear strain rates..."
-./gmtstrainplot.sh -jpg -gtotaxes strain_info.dat -psta -l -o ${prefix}output_gtotaxes${suffix}
+./gmtstrainplot.sh -jpg -gtotaxes strain_info.dat -psta -o ${prefix}output_gtotaxes${suffix}
 echo "[PLOTALL] ...plot maximum shear strain..."
-./gmtstrainplot.sh -jpg -gtot strain_info.dat -psta -l -o ${prefix}output_gtot${suffix}
+./gmtstrainplot.sh -jpg -gtot strain_info.dat -psta -o ${prefix}output_gtot${suffix}
 echo "[PLOTALL] ...plot dilatation..."
-./gmtstrainplot.sh -jpg -dil strain_info.dat -psta -l -o ${prefix}output_dil${suffix}
+./gmtstrainplot.sh -jpg -dil strain_info.dat -psta -o ${prefix}output_dil${suffix}
 echo "[PLOTALL] ...plot second invariant..."
-./gmtstrainplot.sh -jpg -secinv strain_info.dat -psta -l -o ${prefix}output_2inv${suffix}
+./gmtstrainplot.sh -jpg -secinv strain_info.dat -psta -o ${prefix}output_2inv${suffix}
 
 echo "[PLOTALL] ...plot statistics, stations used per cell..."
-./gmtstatsplot.sh -jpg -stats strain_stats.dat --stats-stations -psta -l -leg -o ${prefix}output_stats-stations${suffix}
+./gmtstatsplot.sh -jpg -stats strain_stats.dat --stats-stations -psta -leg -o ${prefix}output_stats-stations${suffix}
 echo "[PLOTALL] ...plot statistics, optimal smoothing distance..."
-./gmtstatsplot.sh -jpg -stats strain_stats.dat --stats-doptimal -psta -l -leg -o ${prefix}output_stats-doptimal${suffix}
+./gmtstatsplot.sh -jpg -stats strain_stats.dat --stats-doptimal -psta -leg -o ${prefix}output_stats-doptimal${suffix}
 echo "[PLOTALL] ...plot statistics, sigma value..."
-./gmtstatsplot.sh -jpg -stats strain_stats.dat --stats-sigma -psta -l -leg -o ${prefix}output_stats-sigma${suffix}
+./gmtstatsplot.sh -jpg -stats strain_stats.dat --stats-sigma -psta -leg -o ${prefix}output_stats-sigma${suffix}
 
 echo "--------------------------------------------------------------------------"
 echo "[PLOTALL] output file produced from this script:"
