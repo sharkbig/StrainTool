@@ -338,7 +338,7 @@ class ShenStrain:
                 * compute for each station a pair of sigmas, as:
                   w_x = (σ0/σe) * sqrt(Z(i)*L(i))
                   w_y = (σ0/σn) * sqrt(Z(i)*L(i))
-            
+
             If weighting scheme is 'equal weights', then the function will
             return a weight matrix with all elements equal to 1.
 
