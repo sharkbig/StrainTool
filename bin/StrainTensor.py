@@ -432,19 +432,21 @@ if __name__ == '__main__':
         ##+ to degrees and produce a grid from extracting min/max crds from the
         ##+ station list.
         if 'region' in args:
-            grd = pystrain.grid.Grid(lonmin, lonmax, args.x_grid_step, latmin, latmax, args.y_grid_step)
+            #grd = pystrain.grid.Grid(lonmin, lonmax, args.x_grid_step, latmin, latmax, args.y_grid_step)
+            grd = pystrain.grid.IrregularGrid(sta_list_ell, lonmin, lonmax, args.x_grid_step, latmin, latmax, args.y_grid_step, True)
         else:
-            grd = pystrain.grid.generate_grid(sta_list_ell, args.x_grid_step, args.y_grid_step, True)
+            grd = pystrain.grid.generate_irregular_grid(sta_list_ell, args.x_grid_step, args.y_grid_step, True)
         print('[DEBUG] Grid Information:')
-        print('[DEBUG]\tLongtitude : from {} to {} with step {} (deg)'.format(grd.x_min, grd.x_max, grd.x_step))
-        print('[DEBUG]\tLatitude   : from {} to {} with step {} (deg)'.format(grd.y_min, grd.y_max, grd.y_step))
-        print('[DEBUG] Number of Strain Tensors to be estimated: {}'.format(grd.xpts*grd.ypts))
+        #print('[DEBUG]\tLongtitude : from {} to {} with step {} (deg)'.format(grd.x_min, grd.x_max, grd.x_step))
+        #print('[DEBUG]\tLatitude   : from {} to {} with step {} (deg)'.format(grd.y_min, grd.y_max, grd.y_step))
+        #print('[DEBUG] Number of Strain Tensors to be estimated: {}'.format(grd.xpts*grd.ypts))
         if fstats:
             print('{:^10s} {:^10s} {:^10s} {:^12s} {:^12s} {:^12s}'.format('Longtitude','Latitude','# stations', 'D (optimal)','CutOff dis.', 'Sigma'), file=fstats)
             print('{:^10s} {:^10s} {:^10s} {:^12s} {:^12s} {:^12s}'.format('deg.','deg.','#', 'Km','#', '/'), file=fstats)
         vprint('[DEBUG] Estimating strain tensor for each cell center:')
         ##  Iterate through the grid (on each cell center). Grid returns cell-centre
         ##+ coordinates in lon/lat pairs, in degrees!
+        """
         if args.multiproc_mode:
             grd1, grd2, grd3, grd4 = grd.split2four()
             fout1=open(".out.thread1", "w")
@@ -480,7 +482,8 @@ if __name__ == '__main__':
                         os.remove(".sta.thread"+str(fnr))
            
         else:
-            compute__(grd, sta_list_utm, utm_zone, fout, fstats, vprint, **dargs)
+        """
+        compute__(grd, sta_list_utm, utm_zone, fout, fstats, vprint, **dargs)
     else:
         ##  Using veis method. Compute delaunay triangles and estimate one tensor
         ##+ per triangle centre

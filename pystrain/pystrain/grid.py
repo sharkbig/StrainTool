@@ -38,6 +38,8 @@ class Grid:
     """
 
     def split2four(self):
+        """ Split the grid to four indipendent, same-size grids
+        """
         x2 = self.x_min + (self.xpts/2)*self.x_step
         y2 = self.y_min + (self.ypts/2)*self.y_step
         g1 = Grid(self.x_min, x2, self.x_step, self.y_min, y2, self.y_step)
@@ -238,6 +240,169 @@ def generate_grid(sta_lst, x_step, y_step, sta_lst_to_deg=False):
     # return a Grid instance
     return Grid(x_min, x_max, x_step, y_min, y_max, y_step)
 
+class IrregularGrid:
+    
+    def __init__(self, station_list, x_min, x_max, x_step, y_min, y_max, y_step, sta_list_to_degrees=False, strict_upper_limit=False, upper_limit_epsilon=1e-10):
+        print("[DEBUG PYSTRAIN] called __init__ for IrregularGrid")
+        grd = Grid(x_min, x_max, x_step, y_min, y_max, y_step, strict_upper_limit, upper_limit_epsilon)
+        self.x_min = grd.x_min
+        self.x_max = grd.x_max
+        self.y_min = grd.y_min
+        self.y_max = grd.y_max
+        self.x_maxstep = grd.x_step*10e0
+        self.y_maxstep = grd.y_step*10e0
+        self.x_minstep = grd.x_step/5e0
+        self.y_minstep = grd.y_step/5e0
+        if sta_list_to_degrees:
+            for sta in station_list:
+                sta.lon, sta.lat = degrees(sta.lon), degrees(sta.lat)
+        print("[DEBUG PYSTRAIN] calling self.__make_ticks__ for x axis (IrregularGrid)")
+        self.x_ticks = self.__make_ticks__('x', station_list)
+        print("[DEBUG PYSTRAIN] calling self.__make_ticks__ for y axis (IrregularGrid)")
+        self.y_ticks = self.__make_ticks__('y', station_list)
+        self.xpts = len(self.x_ticks)
+        self.ypts = len(self.y_ticks)
+        self.cxi = 0
+        self.cyi = 0
+        print("[DEBUG PYSTRAIN] # of x-ticks: {:5d}, # of y-ticks {:5d}".format(self.xpts, self.ypts))
+        """
+        print("[DEBUG PYSTRAIN] Ticks on x-axis (IrregularGrid):")
+        for t in self.x_ticks: print("\t[DEBUG PYSTRAIN] {:10.7f}".format(t))
+        print("[DEBUG PYSTRAIN] Ticks on y-axis (IrregularGrid):")
+        for t in self.y_ticks: print("\t[DEBUG PYSTRAIN] {:10.7f}".format(t))
+        """
+
+    def __make_ticks__(self, axis, station_list):
+        print("[DEBUG PYSTRAIN] called self.__make_ticks__ (IrregularGrid)")
+        if axis == 'x':
+            sta_lst = sorted(station_list, key=lambda x: x.lon, reverse=False)
+            minx, maxx = self.x_min, self.x_max
+            foo = lambda sta : sta.lon
+            maxstep = self.x_maxstep
+            minstep = self.x_minstep
+        else:
+            sta_lst = sorted(station_list, key=lambda x: x.lat, reverse=False)
+            minx, maxx = self.y_min, self.y_max
+            foo = lambda sta : sta.lat
+            maxstep = self.y_maxstep
+            minstep = self.y_minstep
+        ##  Iterate through axis every with step = maxstep, from minx to maxx
+        ##  Record number of stations that fall in every node (sta_per_cell)
+        ##  Save max number of stations in node (max_sta_in_cell)
+        sta_per_cell = []
+        max_sta_in_cell = 0
+        curx = minx
+        while curx < maxx:
+            cur_spl = 0
+            c_minx, c_maxx = curx, curx+maxstep
+            for sta in sta_lst:
+                if foo(sta) >= c_minx and foo(sta) <= c_maxx:
+                    cur_spl += 1
+                elif foo(sta) > c_maxx:
+                    break
+            sta_per_cell.append(cur_spl)
+            if cur_spl > max_sta_in_cell: max_sta_in_cell = cur_spl
+            # print("\t[DEBUG PYSTRAIN] cell {:10.5f} to {:10.5f} stations: {:3d}".format(c_minx, c_maxx, cur_spl))
+            curx += maxstep
+        assert max_sta_in_cell > 0
+        #print("[DEBUG PYSTRAIN] ticks per node:")
+        #for n in sta_per_cell:
+        #    print("\t[DEBUG PYSTRAIN] {:10.7f}*{:10.7f}/{:3d} = {:10.7f}".format(minstep,n,max_sta_in_cell,n*minstep/max_sta_in_cell))
+        ##  Iterate through axis every with step = maxstep, from minx to maxx
+        ##  For each cell, compute the annotation interval (annot_intrvl), as
+        ##+ annot_intrvl(i) = sta_per_cell(i) * minstep / max_sta_in_cell
+        ##+ so that the cell with the maximum number of stations has an annotation
+        ##+ interval equal to minstep.
+        ##  Now for each cell, we have a seperate annotation interval
+        annot_intrvl = [ minstep+(x*minstep)/max_sta_in_cell if x>0 else maxstep for x in sta_per_cell ]
+        ##  Iterate through axis every with step = maxstep, from minx to maxx
+        ##  For each cell use the computed annotation interval to compute the
+        ##+ cell annotation and store them in an array
+        curx = minx
+        ticks2return = []
+        it = 0
+        while curx < maxx:
+            c_minx, c_maxx = curx, curx+maxstep
+            an_int = annot_intrvl[it]
+            print("\t[DEBUG PYSTRAIN] Node from {:10.7f} to {:10.7f} tick_every {:10.7f}".format(c_minx, c_maxx, an_int))
+            assert an_int >= minstep
+            annot = curx
+            while annot < c_maxx:
+                ticks2return.append(annot)
+                annot += an_int
+            curx += maxstep
+            it += 1
+        print("[DEBUG PYSTRAIN] returning from self.__make_ticks__ (IrregularGrid)")
+        return ticks2return
+    
+    def __iter__(self):
+        self.cxi = 0
+        self.cyi = 0
+        return self
+
+    def xidx2xval(self, idx):
+        """Index to value for x-axis.
+         
+            Given an index (on x-axis), return the value at the centre of this
+            cell. The index represents the number of a cell (starting from
+            zero).
+
+            Args:
+                idx (int): the index; should be in range (0, self.xpts]
+        """
+        assert idx >= 0 and idx < self.xpts
+        #return self.x_min + self.x_step/2e0 + self.x_step*float(idx)
+        return self.x_ticks[idx]
+    
+    def yidx2yval(self, idx):
+        """Index to value for y-axis.
+         
+            Given an index (on y-axis), return the value at the centre of this
+            cell. The index represents the number of a cell (starting from
+            zero).
+
+            Args:
+                idx (int): the index; should be in range (0, self.ypts]
+        """
+        assert idx >= 0 and idx < self.ypts
+        #return self.y_min + self.y_step/2e0 + self.y_step*float(idx)
+        return self.y_ticks[idx]
+
+    def next(self):
+        """Return the centre of the next cell.
+
+            Return the (centre of the) next cell (aka x,y coordinate pair). Next
+            actually means the cell on the right (if there is one), or else the
+            leftmost cell in the above row.
+
+            Raises:
+                StopIteration: if there are not more cell we can get to.
+        """
+        xi, yi = self.cxi, self.cyi
+        if self.cxi >= self.xpts - 1:
+            if self.cyi >= self.ypts - 1:
+                # last element iin iteration!
+                if self.cxi == self.xpts - 1 and self.cyi == self.ypts - 1:
+                    self.cxi += 1
+                    self.cyi += 1
+                    return self.xidx2xval(xi), self.yidx2yval(yi)
+                else:
+                    raise StopIteration
+            self.cxi  = 0
+            self.cyi += 1
+        else:
+            xi, yi = self.cxi, self.cyi
+            self.cxi += 1
+        return self.xidx2xval(xi), self.yidx2yval(yi)
+
+    # Python 3.X compatibility
+    __next__ = next
+
+def generate_irregular_grid(sta_lst, x_step, y_step, sta_lst_to_deg=False):
+    grd = generate_grid(sta_lst, x_step, y_step, sta_lst_to_deg)
+    return IrregularGrid(sta_lst, grd.x_min, grd.x_max, grd.x_step, grd.y_min, grd.y_max, grd.y_step)
+
+
 if __name__ == "__main__":
     #grd = Grid(19.25e0, 30.75e0, 0.5e0, 34.25e0, 42.75e0, 0.5e0)
     grd = Grid(19.25e0, 20.75e0, 0.5e0, 34.25e0, 40.75e0, 0.5e0)
@@ -253,3 +418,4 @@ if __name__ == "__main__":
     dummy = np.arange(grd.y_min+grd.y_step/2e0, grd.y_max, grd.y_step)
     assert len(dummy) == grd.ypts
     assert grd.xpts*grd.ypts == idx
+
