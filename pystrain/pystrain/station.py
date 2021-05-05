@@ -3,7 +3,10 @@
 from math import sqrt, radians, sin, cos, atan2, pi, asin
 
 # Any Station instance, can have any (or all) of these attributes
-station_member_names = ['name', 'lat', 'lon', 've', 'vn', 'se', 'sn', 'rho', 't']
+station_member_names = [
+    'name', 'lat', 'lon', 've', 'vn', 'se', 'sn', 'rho', 't'
+]
+
 
 class Station:
     '''A simple Station class.
@@ -71,7 +74,8 @@ class Station:
         '''
         self.set_none()
 
-        if len(args) != 0: self.init_from_ascii_line(args[0])
+        if len(args) != 0:
+            self.init_from_ascii_line(args[0])
 
         if len(kargs) != 0:
             for key, val in kargs.items():
@@ -97,14 +101,14 @@ class Station:
         l = input_line.split()
         try:
             self.name = l[0]
-            self.lon  = radians(float(l[1]))
-            self.lat  = radians(float(l[2]))
-            self.ve   = float(l[3]) / 1e3
-            self.vn   = float(l[4]) / 1e3
-            self.se   = float(l[5]) / 1e3
-            self.sn   = float(l[6]) / 1e3
-            self.rho  = float(l[7]) / 1e3
-            self.t    = float(l[8])
+            self.lon = radians(float(l[1]))
+            self.lat = radians(float(l[2]))
+            self.ve = float(l[3]) / 1e3
+            self.vn = float(l[4]) / 1e3
+            self.se = float(l[5]) / 1e3
+            self.sn = float(l[6]) / 1e3
+            self.rho = float(l[7]) / 1e3
+            self.t = float(l[8])
         except:
             print('[DEBUG] Invalid Station instance constrution.')
             print('[DEBUG] Input line \"{}\"'.format(input_line.strip()))
@@ -115,15 +119,15 @@ class Station:
 
             Set all instance member values to None.
         '''
-        self.name = None                                                        
-        self.lon  = None
-        self.lat  = None
-        self.ve   = None
-        self.vn   = None
-        self.se   = None
-        self.sn   = None
-        self.rho  = None
-        self.t    = None
+        self.name = None
+        self.lon = None
+        self.lat = None
+        self.ve = None
+        self.vn = None
+        self.se = None
+        self.sn = None
+        self.rho = None
+        self.t = None
 
     def distance_from(self, sta):
         '''Distance to another station.
@@ -158,8 +162,8 @@ class Station:
         '''
         dlon = sta.lon - self.lon
         dlat = sta.lat - self.lat
-        return dlon, dlat, sqrt(dlat*dlat + dlon*dlon)
-    
+        return dlon, dlat, sqrt(dlat * dlat + dlon * dlon)
+
     def squared_distance_from(self, sta):
         '''Squared distance to another station.
 
@@ -194,9 +198,9 @@ class Station:
                 use and use with care!
 
         '''
-        dlon = (sta.lon - self.lon)/1e3
-        dlat = (sta.lat - self.lat)/1e3
-        return (dlat*dlat + dlon*dlon)
+        dlon = (sta.lon - self.lon) / 1e3
+        dlat = (sta.lat - self.lat) / 1e3
+        return (dlat * dlat + dlon * dlon)
 
     def haversine_distance(self, sta, R=6372797.560856e0):
         """Computes the distance, in meters, between two points on a sphere.
@@ -205,15 +209,17 @@ class Station:
             given their longitudes and latitudes (self.lat, self.lon in radians)
             see https://en.wikipedia.org/wiki/Haversine_formula
         """
+
         def ArcInRadians(frm, to):
             """Computes the arc, in radians, between two points on a sphere.
             """
             latarc = frm.lat - to.lat
             lonarc = frm.lon - to.lon
-            lath   = sin(latarc*0.5e0)
-            lath  *= lath
-            lonh   = sin(lonarc*0.5e0)
-            lonh  *= lonh
-            tmp    = cos(frm.lat) * cos(to.lat)
-            return 2e0 * asin(sqrt(lath + tmp*lonh))
-        return R*ArcInRadians(self, sta)
+            lath = sin(latarc * 0.5e0)
+            lath *= lath
+            lonh = sin(lonarc * 0.5e0)
+            lonh *= lonh
+            tmp = cos(frm.lat) * cos(to.lat)
+            return 2e0 * asin(sqrt(lath + tmp * lonh))
+
+        return R * ArcInRadians(self, sta)

@@ -2,9 +2,10 @@
 #-*- coding: utf-8 -*-
 
 from __future__ import print_function
-from sys  import float_info
+from sys import float_info
 from math import floor, radians, degrees, ceil, floor
 import numpy as np
+
 
 class Grid:
     """A dead simple grid class.
@@ -38,16 +39,24 @@ class Grid:
     """
 
     def split2four(self):
-        x2 = self.x_min + (self.xpts/2)*self.x_step
-        y2 = self.y_min + (self.ypts/2)*self.y_step
+        x2 = self.x_min + (self.xpts / 2) * self.x_step
+        y2 = self.y_min + (self.ypts / 2) * self.y_step
         g1 = Grid(self.x_min, x2, self.x_step, self.y_min, y2, self.y_step)
-        g2 = Grid(x2, self.x_max, self.x_step, self.y_min, y2, self.y_step) 
+        g2 = Grid(x2, self.x_max, self.x_step, self.y_min, y2, self.y_step)
         g3 = Grid(self.x_min, x2, self.x_step, y2, self.y_max, self.y_step)
         g4 = Grid(x2, self.x_max, self.x_step, y2, self.y_max, self.y_step)
         return g1, g2, g3, g4
 
     ## TODO write about ceil/floor and [x|y]_max in documentation
-    def __init__(self, x_min, x_max, x_step, y_min, y_max, y_step, strict_upper_limit=False, upper_limit_epsilon=1e-10):
+    def __init__(self,
+                 x_min,
+                 x_max,
+                 x_step,
+                 y_min,
+                 y_max,
+                 y_step,
+                 strict_upper_limit=False,
+                 upper_limit_epsilon=1e-10):
         """Constructor via x- and y- axis limits.
 
             The __init__ method will assign all of the instance's attributes.
@@ -82,14 +91,14 @@ class Grid:
         """
         self.x_min = x_min
         self.x_max = x_max
-        self.x_step= x_step
+        self.x_step = x_step
         self.y_min = y_min
         self.y_max = y_max
-        self.y_step= y_step
-        self.cxi    = 0      # current x-axis tick / index
-        self.cyi    = 0      # current y-axis tick / index
-        self.xpts   = int(floor((x_max-x_min) / float(x_step)))
-        self.ypts   = int(floor((y_max-y_min) / float(y_step)))
+        self.y_step = y_step
+        self.cxi = 0  # current x-axis tick / index
+        self.cyi = 0  # current y-axis tick / index
+        self.xpts = int(floor((x_max - x_min) / float(x_step)))
+        self.ypts = int(floor((y_max - y_min) / float(y_step)))
         if strict_upper_limit:
             while x_min + self.xpts * x_step > x_max:
                 self.xpts -= 1
@@ -97,7 +106,7 @@ class Grid:
                 self.ypts -= 1
             upper_limit_epsilon = 0e0
         else:
-            assert x_step > upper_limit_epsilon/2e0 and y_step > upper_limit_epsilon/2e0
+            assert x_step > upper_limit_epsilon / 2e0 and y_step > upper_limit_epsilon / 2e0
         # if using ceil for pts number
         #assert x_min + self.xpts * x_step >= x_max and abs(x_min + self.xpts * x_step - x_max) < x_step/float(2)
         #assert y_min + self.ypts * y_step >= y_max and abs(y_min + self.ypts * y_step - y_max) < y_step/float(2)
@@ -122,8 +131,8 @@ class Grid:
                 idx (int): the index; should be in range (0, self.xpts]
         """
         assert idx >= 0 and idx < self.xpts
-        return self.x_min + self.x_step/2e0 + self.x_step*float(idx)
-    
+        return self.x_min + self.x_step / 2e0 + self.x_step * float(idx)
+
     def yidx2yval(self, idx):
         """Index to value for y-axis.
          
@@ -135,7 +144,7 @@ class Grid:
                 idx (int): the index; should be in range (0, self.ypts]
         """
         assert idx >= 0 and idx < self.ypts
-        return self.y_min + self.y_step/2e0 + self.y_step*float(idx)
+        return self.y_min + self.y_step / 2e0 + self.y_step * float(idx)
 
     def next(self):
         """Return the centre of the next cell.
@@ -158,7 +167,7 @@ class Grid:
                            self.y_min + self.y_step/2e0 + self.y_step*float(yi)
                 else:
                     raise StopIteration
-            self.cxi  = 0
+            self.cxi = 0
             self.cyi += 1
         else:
             xi, yi = self.cxi, self.cyi
@@ -167,6 +176,7 @@ class Grid:
 
     # Python 3.X compatibility
     __next__ = next
+
 
 def generate_grid(sta_lst, x_step, y_step, sta_lst_to_deg=False):
     """Grid generator.
@@ -222,34 +232,38 @@ def generate_grid(sta_lst, x_step, y_step, sta_lst_to_deg=False):
         if slat > y_max:
             y_max = slat
         if slat < y_min:
-           y_min = slat
+            y_min = slat
     # Adjust max and min to step.
     #print("\t[DEBUG] Region: Easting: {:}/{:} Northing: {:}/{:}".format(x_min, x_max, y_min, y_max))
-    s      = float((floor((y_max-y_min)/y_step)+1e0)*y_step)
-    r      = s-(y_max-y_min)
-    y_min -= r/2
-    y_max += r/2
+    s = float((floor((y_max - y_min) / y_step) + 1e0) * y_step)
+    r = s - (y_max - y_min)
+    y_min -= r / 2
+    y_max += r / 2
     # assert divmod(y_max-y_min, y_step)[1] == 0e0
-    s      = float((floor((x_max-x_min)/x_step)+1e0)*x_step)
-    r      = s-(x_max-x_min)
-    x_min -= r/2
-    x_max += r/2
+    s = float((floor((x_max - x_min) / x_step) + 1e0) * x_step)
+    r = s - (x_max - x_min)
+    x_min -= r / 2
+    x_max += r / 2
     # assert divmod(x_max-x_min, x_step)[1] == 0e0
     # return a Grid instance
     return Grid(x_min, x_max, x_step, y_min, y_max, y_step)
+
 
 if __name__ == "__main__":
     #grd = Grid(19.25e0, 30.75e0, 0.5e0, 34.25e0, 42.75e0, 0.5e0)
     grd = Grid(19.25e0, 20.75e0, 0.5e0, 34.25e0, 40.75e0, 0.5e0)
     print('Constructed grid with axis:')
-    print('\tX: from {} to {} with step {}'.format(grd.x_min, grd.x_max, grd.x_step))
-    print('\tY: from {} to {} with step {}'.format(grd.y_min, grd.y_max, grd.y_step))
+    print('\tX: from {} to {} with step {}'.format(grd.x_min, grd.x_max,
+                                                   grd.x_step))
+    print('\tY: from {} to {} with step {}'.format(grd.y_min, grd.y_max,
+                                                   grd.y_step))
     idx = 0
     for x, y in grd:
         idx += 1
-        print('index {:3d}/{:4d}: Cell centre is at: {:}, {:}'.format(idx, grd.xpts*grd.ypts, x, y))
-    dummy = np.arange(grd.x_min+grd.x_step/2e0, grd.x_max, grd.x_step)
+        print('index {:3d}/{:4d}: Cell centre is at: {:}, {:}'.format(
+            idx, grd.xpts * grd.ypts, x, y))
+    dummy = np.arange(grd.x_min + grd.x_step / 2e0, grd.x_max, grd.x_step)
     assert len(dummy) == grd.xpts
-    dummy = np.arange(grd.y_min+grd.y_step/2e0, grd.y_max, grd.y_step)
+    dummy = np.arange(grd.y_min + grd.y_step / 2e0, grd.y_max, grd.y_step)
     assert len(dummy) == grd.ypts
-    assert grd.xpts*grd.ypts == idx
+    assert grd.xpts * grd.ypts == idx

@@ -1,7 +1,8 @@
 from pystrain.station import Station
 
+
 def parse_ascii_input(filename, zero_std_is_error=False):
-  """Parse station info from an input file.
+    """Parse station info from an input file.
 
       This function will try to read Stations of from the input file, named
       filename. For this to work, the lines in the input file, should conform
@@ -24,21 +25,28 @@ def parse_ascii_input(filename, zero_std_is_error=False):
           list of Station instances or None (if no station was read)
 
   """
-  stations = []
-  with open(filename) as fin:
-    for line in fin.readlines():
-      # stations.append(Station(line))
-      nSta=Station(line)
-      if zero_std_is_error and (nSta.sn==0e0 or nSta.se==0e0):
-        raise ValueError('[ERROR] Zero std. deviation not allowed! station is: {:}'.format(nSta.name))
-      ## check that the station is not a duplicate
-      for sta in stations:
-        if sta.name == nSta.name:
-          raise ValueError('[ERROR] Duplicate record found in input file for station {:}'.format(sta.name))
-        if sta.lat==nSta.lat and sta.lon==nSta.lon:
-          raise ValueError('[ERROR] Exact coordinate match for stations {:} and {:}. Possible duplicate!'.format(sta.name, nSta.name))
-      stations.append(nSta)
-  if len(stations):
-    return stations
-  else:
-    return None
+    line_nr = 0
+    stations = []
+    with open(filename) as fin:
+        for line in fin.readlines():
+            line_nr += 1
+            nSta = Station(line)
+            if zero_std_is_error and (nSta.sn == 0e0 or nSta.se == 0e0):
+                raise ValueError(
+                    '[ERROR] Zero std. deviation not allowed! station is: {:} (#line {:})'.
+                    format(nSta.name, line_nr))
+            ## check that the station is not a duplicate
+            for sta in stations:
+                if sta.name == nSta.name:
+                    raise ValueError(
+                        '[ERROR] Duplicate record found in input file for station {:} (#line {:})'
+                        .format(sta.name, line_nr))
+                if sta.lat == nSta.lat and sta.lon == nSta.lon:
+                    raise ValueError(
+                        '[ERROR] Exact coordinate match for stations {:} and {:}. Possible duplicate! (#line {:})'
+                        .format(sta.name, nSta.name, line_nr))
+            stations.append(nSta)
+    if len(stations):
+        return stations
+    else:
+        return None

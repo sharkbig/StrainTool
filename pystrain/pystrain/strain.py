@@ -16,6 +16,7 @@ from pystrain.iotools.iparser import *
 
 DEBUG_MODE = False
 
+
 def barycenter(sta_list):
     ''' Compute the barycenter from a list of stations. The function will use
         each station's self.lat and self.lon components.
@@ -30,13 +31,15 @@ def barycenter(sta_list):
                                   latitude.
     '''
     if len(sta_list) == 0:
-        raise ValueError("[ERROR] Cannot compute barycentre for empty list of stations")
+        raise ValueError(
+            "[ERROR] Cannot compute barycentre for empty list of stations")
     y_mean = sta_list[0].lat
     x_mean = sta_list[0].lon
     for i in range(1, len(sta_list)):
-        y_mean = (sta_list[i].lat + (i-1)*y_mean) / float(i)
-        x_mean = (sta_list[i].lon + (i-1)*x_mean) / float(i)
+        y_mean = (sta_list[i].lat + (i - 1) * y_mean) / float(i)
+        x_mean = (sta_list[i].lon + (i - 1) * x_mean) / float(i)
     return x_mean, y_mean
+
 
 class ShenStrain:
     """A class to represeent Strain Tensors.
@@ -113,13 +116,13 @@ class ShenStrain:
         ##  Set input values (x, y, station_list) and initiallize all others to
         ##+ default values.
         self.__stalst__ = station_list
-        self.__xcmp__   = x
-        self.__ycmp__   = y
+        self.__xcmp__ = x
+        self.__ycmp__ = y
         self.__zweights__ = None
         self.__lweights__ = None
-        self.__options__  = {
+        self.__options__ = {
             'ltype': 'gaussian',
-            'Wt': 24, 
+            'Wt': 24,
             'dmin': 1,
             'dmax': 500,
             'dstep': 2,
@@ -129,12 +132,12 @@ class ShenStrain:
             'verbose_mode': False
         }
         self.__parameters__ = {
-            'Ux':0e0,
-            'Uy':0e0,
-            'omega':0e0, 
-            'taux':0e0,
-            'tauxy':0e0,
-            'tauy':0e0
+            'Ux': 0e0,
+            'Uy': 0e0,
+            'omega': 0e0,
+            'taux': 0e0,
+            'tauxy': 0e0,
+            'tauy': 0e0
         }
         self.__vcv__ = None
         ## Resolve the dictionary passed in (if any)
@@ -147,7 +150,8 @@ class ShenStrain:
             self.__options__['cutoff_dis'] = 10e0
         ##  If in verbose_mode, set the vprint function to print; else vprint
         ##+ is a noop
-        self.vprint = print if self.__options__['verbose_mode'] else lambda *a, **k: None
+        self.vprint = print if self.__options__[
+            'verbose_mode'] else lambda *a, **k: None
 
     def clean_weight_matrices(self):
         """ Set both distance and spatial weight lists (aka zweights and 
@@ -184,22 +188,30 @@ class ShenStrain:
 
         """
         if not self.__options__['cutoff_dis']:
-            raise ValueError("[ERROR] Cannot filter station list; cutoff_dis is None!")
+            raise ValueError(
+                "[ERROR] Cannot filter station list; cutoff_dis is None!")
         cc = Station(lon=self.__xcmp__, lat=self.__ycmp__)
-        if not d: d = self.__options__['d_coef']
+        if not d:
+            d = self.__options__['d_coef']
         limit = self.__options__['cutoff_dis'] * d
         ##  OPT try optimized squared distance (aka remove the square roots).
         ##+ That is instead of filtering based on sqrt(Δx^2 + Δy^2) < limit*1e3
         ##+ we will use (Δx^2 + Δy^2) < limit*limit
-        nlst = [ s for s in self.__stalst__ if s.squared_distance_from(cc) <= limit*limit ]
+        nlst = [
+            s for s in self.__stalst__
+            if s.squared_distance_from(cc) <= limit * limit
+        ]
         ## In debug mode, check that we have the correct results
         if DEBUG_MODE:
-            nlst1 = [ s for s in self.__stalst__ if s.distance_from(cc)[2] <= limit*1e3 ]
+            nlst1 = [
+                s for s in self.__stalst__
+                if s.distance_from(cc)[2] <= limit * 1e3
+            ]
             assert len(nlst) == len(nlst1)
-            for i,s in enumerate(nlst1):
+            for i, s in enumerate(nlst1):
                 assert s.name == nlst[i].name
         return nlst
-    
+
     def azimouths(self, other_sta_lst=None):
         """ Azimouth of line containing the instance's centre and each point.
             
@@ -242,13 +254,14 @@ class ShenStrain:
         n = len(stalst)
         azimouths = []
         for idx, sta in enumerate(stalst):
-            az = atan2(sta.lon-self.__xcmp__, sta.lat-self.__ycmp__)
-            azimouths.append({'az': az+int(az<0e0)*(2e0*pi), 'nr': idx})
+            az = atan2(sta.lon - self.__xcmp__, sta.lat - self.__ycmp__)
+            azimouths.append({'az': az + int(az < 0e0) * (2e0 * pi), 'nr': idx})
         azimouths = sorted(azimouths, key=operator.itemgetter('az'))
         if DEBUG_MODE:
             ##  if in debug mode, confirm that all azimouths are in the range
             ##+ [0,2*pi)
-            for a in azimouths: assert a['az'] >= 0e0 and a['az'] < 2*pi
+            for a in azimouths:
+                assert a['az'] >= 0e0 and a['az'] < 2 * pi
         return azimouths
 
     def ls_matrices(self, sigma0=1):
@@ -302,28 +315,28 @@ class ShenStrain:
 
         """
         ## number of rows (observations)
-        N = len(self.__stalst__)*2
+        N = len(self.__stalst__) * 2
         ## number of columns (parameters)
         M = 6
         ## the weights, i.e. σ0 * W(i)
         W = sigma0 * self.make_weight_matrix()
-        assert W.shape == (N,1)
+        assert W.shape == (N, 1)
         ##  Distances, dx and dy for each station from (cx, cy). Each element
         ##+ of the array is xyr = [ ... (dx, dy, dr) ... ]
-        cc  = Station(lon=self.__xcmp__, lat=self.__ycmp__)
-        xyr = [ cc.distance_from(x) for x in self.__stalst__ ]
+        cc = Station(lon=self.__xcmp__, lat=self.__ycmp__)
+        xyr = [cc.distance_from(x) for x in self.__stalst__]
         ## design matrix A, observation matrix b
-        A = numpy.zeros(shape=(N,M))
-        b = numpy.zeros(shape=(N,1))
+        A = numpy.zeros(shape=(N, M))
+        b = numpy.zeros(shape=(N, 1))
         i = 0
         for idx, sta in enumerate(self.__stalst__):
             dx, dy, dr = xyr[idx]
-            Wx     = W[i]
-            Wy     = W[i+1]
-            A[i]   = [ Wx*j for j in [1e0, 0e0,  dx, dy, 0e0, dy] ]
-            A[i+1] = [ Wy*j for j in [0e0, 1e0, 0e0, dx, dy, -dx] ]
-            b[i]   = sta.ve * Wx
-            b[i+1] = sta.vn * Wy
+            Wx = W[i]
+            Wy = W[i + 1]
+            A[i] = [Wx * j for j in [1e0, 0e0, dx, dy, 0e0, dy]]
+            A[i + 1] = [Wy * j for j in [0e0, 1e0, 0e0, dx, dy, -dx]]
+            b[i] = sta.ve * Wx
+            b[i + 1] = sta.vn * Wy
             i += 2
         assert i == N, "[DEBUG] Failed to construct ls matrices"
         return A, b
@@ -366,19 +379,21 @@ class ShenStrain:
                 should have already been computed.
         """
         ## number of rows (observations)
-        N = len(self.__stalst__)*2
-        W = numpy.ones(shape=(N,1))
+        N = len(self.__stalst__) * 2
+        W = numpy.ones(shape=(N, 1))
         ## Use Shen's weighting scheme
         if self.__options__['weighting_function'] == 'shen':
             if not self.__zweights__ or not self.__lweights__:
-                raise RuntimeError("[ERROR] Z or L weights not set; cannot compute weight matrices")
+                raise RuntimeError(
+                    "[ERROR] Z or L weights not set; cannot compute weight matrices"
+                )
             d_coef = self.__options__['d_coef']
             zw = self.__zweights__
             lw = self.__lweights__
             i = 0
             for idx, sta in enumerate(self.__stalst__):
-                W[i]   = (1e0/sta.se)*sqrt(zw[idx]*lw[idx])
-                W[i+1] = (1e0/sta.sn)*sqrt(zw[idx]*lw[idx])
+                W[i] = (1e0 / sta.se) * sqrt(zw[idx] * lw[idx])
+                W[i + 1] = (1e0 / sta.sn) * sqrt(zw[idx] * lw[idx])
                 i += 2
             assert i == N
         elif self.__options__['weighting_function'] == 'equal_weights':
@@ -427,8 +442,8 @@ class ShenStrain:
         assert len(thetas) == n
         wt_az = 0.25e0
         azi_avrg = wt_az * 360e0 / n
-        azi_tot = (1e0+wt_az)*360e0
-        return [ (0.5e0*degrees(a)+azi_avrg)*n/azi_tot for a in thetas ]
+        azi_tot = (1e0 + wt_az) * 360e0
+        return [(0.5e0 * degrees(a) + azi_avrg) * n / azi_tot for a in thetas]
 
     def compute_theta_angles(self, other_sta_lst=None):
         """ Compute θ angles, aka next minus the previous point.
@@ -469,15 +484,16 @@ class ShenStrain:
         ##  Special care for the first and last elements (theta angles).
         thetas.append({'w' : 2e0*pi+(azimouths[1]['az'] - azimouths[n-1]['az']),\
                        'nr': azimouths[0]['nr']})
-        for j in range(1, n-1):
-            thetas.append({'w':azimouths[j+1]['az'] - azimouths[j-1]['az'],\
-                          'nr':azimouths[j]['nr']})
+        for j in range(1, n - 1):
+            thetas.append({'w': azimouths[j+1]['az'] - azimouths[j-1]['az'],\
+                          'nr': azimouths[j]['nr']})
         thetas.append({'w': 2e0*pi+(azimouths[0]['az'] - azimouths[n-2]['az']),\
-                      'nr':azimouths[n-1]['nr']})
+                      'nr': azimouths[n-1]['nr']})
         ##  Double-check !! All theta angles must be in the range [0, 2*π)
         if DEBUG_MODE:
-            for angle in thetas: assert angle['w'] >= 0 and angle['w'] <= 2*pi
-        return [ i['w'] for i in sorted(thetas, key=operator.itemgetter('nr')) ]
+            for angle in thetas:
+                assert angle['w'] >= 0 and angle['w'] <= 2 * pi
+        return [i['w'] for i in sorted(thetas, key=operator.itemgetter('nr'))]
 
     def l_weights(self, other_sta_lst=None):
         """ Compute distance-dependent weights.
@@ -507,17 +523,23 @@ class ShenStrain:
                 float is the D value used to compute the weights.
 
         """
+
         ##  Note: d and dri must be in the same units (here km).
-        def gaussian(dri, d):  return exp(-pow(dri/d,2))
-        def quadratic(dri, d): return 1e0/(1e0+pow(dri/d,2))
+        def gaussian(dri, d):
+            return exp(-pow(dri / d, 2))
+
+        def quadratic(dri, d):
+            return 1e0 / (1e0 + pow(dri / d, 2))
+
         ## assign the correct weighting formula
         if self.__options__['ltype'] == 'gaussian':
             l_i = gaussian
         elif self.__options__['ltype'] == 'quadratic':
             l_i = quadratic
         else:
-            raise RuntimeError("[ERROR] Invalid distance-dependent weighting function")
-        
+            raise RuntimeError(
+                "[ERROR] Invalid distance-dependent weighting function")
+
         stalst = self.__stalst__ if other_sta_lst is None else other_sta_lst
 
         #  Distances for each point from center in km.
@@ -526,8 +548,10 @@ class ShenStrain:
                     for x in stalst ]
         d = float(self.__options__['d_coef'])
         if not d:
-            raise RuntimeError("[ERROR] D-coefficient ton set; cannot compute distance-dependent weights")
-        return [ l_i(dri,d) for dri in dr ], d
+            raise RuntimeError(
+                "[ERROR] D-coefficient ton set; cannot compute distance-dependent weights"
+            )
+        return [l_i(dri, d) for dri in dr], d
 
     def find_optimal_d(self):
         """ Find optimal D coefficient, for distance weighting.
@@ -590,10 +614,11 @@ class ShenStrain:
             self.__options__['d_coef'] = d
             new_sta_lst = self.filter_sta_wrt_distance(d)
             if len(new_sta_lst) > 3:
-                lwghts,_ = self.l_weights(new_sta_lst)
-                zwghts   = self.z_weights(new_sta_lst)
+                lwghts, _ = self.l_weights(new_sta_lst)
+                zwghts = self.z_weights(new_sta_lst)
                 assert len(lwghts) == len(zwghts)
-                w = sum([ x[0]*x[1] for x in zip(lwghts,zwghts) ])*2 # w(i) = l(i)*z(i)
+                w = sum([x[0] * x[1] for x in zip(lwghts, zwghts)
+                        ]) * 2  # w(i) = l(i)*z(i)
                 if int(round(w)) >= int(self.__options__['Wt']):
                     return lwghts, zwghts, d
         # Fuck! cannot find optimal D
@@ -630,12 +655,13 @@ class ShenStrain:
         azimouths = self.azimouths()
         n = len(azimouths)
         betas = []
-        betas.append(2e0*pi+(azimouths[0]['az'] - azimouths[n-1]['az']))
-        for j in range(0, n-1):
-            betas.append(azimouths[j+1]['az'] - azimouths[j]['az'])
+        betas.append(2e0 * pi + (azimouths[0]['az'] - azimouths[n - 1]['az']))
+        for j in range(0, n - 1):
+            betas.append(azimouths[j + 1]['az'] - azimouths[j]['az'])
         ##  Double-check !! All theta angles must be in the range [0, 2*π)
         if DEBUG_MODE:
-            for angle in betas: assert angle >= 0 and angle <= 2*pi
+            for angle in betas:
+                assert angle >= 0 and angle <= 2 * pi
         assert len(betas) == n
         return betas
 
@@ -698,22 +724,22 @@ class ShenStrain:
                 The functions to compute the strain parameters, are taken from
                 Shen's VISR fortran code.
         '''
-        x1  = self.__parameters__['taux']   ## strain/yr
-        x2  = self.__parameters__['tauxy']  ## strain/yr
-        x3  = self.__parameters__['tauy']   ## strain/yr
+        x1 = self.__parameters__['taux']  ## strain/yr
+        x2 = self.__parameters__['tauxy']  ## strain/yr
+        x3 = self.__parameters__['tauy']  ## strain/yr
         cov = pi / 180e0
-        ##  estimate principle strain rates emax, emin, maximum shear tau_max, 
+        ##  estimate principle strain rates emax, emin, maximum shear tau_max,
         ##+ and dextral tau_max azimuth
-        emean = (x1+x3) / 2e0               ## strain/yr
-        ediff = (x1-x3) / 2e0               ## strain/yr
-        taumax= sqrt(x2**2 + ediff**2)      ## strain/yr
-        emax  = emean+taumax                ## strain/yr
-        emin  = emean-taumax                ## strain/yr
-        azim  = -atan2(x2, ediff) / cov / 2.0e0 ## degrees
-        azim  = 90e0+azim
-        dexazim = azim+45e0-180e0
-        dilat = x1+x3                       ## strain/yr
-        sec_inv = sqrt(x1*x1+2e0*x2*x2+x3*x3)
+        emean = (x1 + x3) / 2e0  ## strain/yr
+        ediff = (x1 - x3) / 2e0  ## strain/yr
+        taumax = sqrt(x2**2 + ediff**2)  ## strain/yr
+        emax = emean + taumax  ## strain/yr
+        emin = emean - taumax  ## strain/yr
+        azim = -atan2(x2, ediff) / cov / 2.0e0  ## degrees
+        azim = 90e0 + azim
+        dexazim = azim + 45e0 - 180e0
+        dilat = x1 + x3  ## strain/yr
+        sec_inv = sqrt(x1 * x1 + 2e0 * x2 * x2 + x3 * x3)
         if params_cov is None:
             staumax, semax, semin, sazim, sdilat, ssec_inv = [None] * 6
         else:
@@ -754,22 +780,27 @@ class ShenStrain:
             ## [τ_max, e_max, e_min, Azim, dilatation, sec_inv]
             ## first row is:
             ## [ dτ_max/dUx, dτ_max/dUy, dτ_max/dτx, dτ_max/dτxy, dτ_max/dτy, dτ_max/dω ]
-            J = numpy.zeros(shape=(6,6))
-            _tmp = ediff/(2e0*taumax)
-            J[0, :] = [ 0e0, 0e0, _tmp,           x2/taumax,        -_tmp,          0e0 ]
-            J[1, :] = [ 0e0, 0e0, .5e0+_tmp,      x2/taumax,         .5e0-_tmp,     0e0 ]
-            J[2, :] = [ 0e0, 0e0, .5e0-_tmp,     -x2/taumax,         .5e0+_tmp,     0e0 ]
-            _tmp = ediff*ediff + x2*x2
-            J[3, :] = [ 0e0, 0e0, x2/(4e0*_tmp), -ediff/(4e0*_tmp), -x2/(4e0*_tmp), 0e0 ]
-            J[4, :] = [ 0e0, 0e0, 1e0,            0e0,               1e0,           0e0 ]
-            J[5, :] = [ 0e0, 0e0, x1/sec_inv,     2e0*x2/sec_inv,    x3/sec_inv,    0e0 ]
+            J = numpy.zeros(shape=(6, 6))
+            _tmp = ediff / (2e0 * taumax)
+            J[0, :] = [0e0, 0e0, _tmp, x2 / taumax, -_tmp, 0e0]
+            J[1, :] = [0e0, 0e0, .5e0 + _tmp, x2 / taumax, .5e0 - _tmp, 0e0]
+            J[2, :] = [0e0, 0e0, .5e0 - _tmp, -x2 / taumax, .5e0 + _tmp, 0e0]
+            _tmp = ediff * ediff + x2 * x2
+            J[3, :] = [
+                0e0, 0e0, x2 / (4e0 * _tmp), -ediff / (4e0 * _tmp),
+                -x2 / (4e0 * _tmp), 0e0
+            ]
+            J[4, :] = [0e0, 0e0, 1e0, 0e0, 1e0, 0e0]
+            J[5, :] = [
+                0e0, 0e0, x1 / sec_inv, 2e0 * x2 / sec_inv, x3 / sec_inv, 0e0
+            ]
             Vy = numpy.dot(J, numpy.dot(params_cov, J.T))
-            staumax = sqrt(Vy[0,0])
-            semax   = sqrt(Vy[1,1])
-            semin   = sqrt(Vy[2,2])
-            sazim   = sqrt(Vy[3,3])
-            sdilat  = sqrt(Vy[4,4])
-            ssec_inv= sqrt(Vy[5,5])
+            staumax = sqrt(Vy[0, 0])
+            semax = sqrt(Vy[1, 1])
+            semin = sqrt(Vy[2, 2])
+            sazim = sqrt(Vy[3, 3])
+            sdilat = sqrt(Vy[4, 4])
+            ssec_inv = sqrt(Vy[5, 5])
         return emean, ediff, \
             taumax, staumax, \
             emax, semax, \
@@ -806,9 +837,12 @@ class ShenStrain:
                 matrix), then the sigmas will be printed as '-'
         """
         if utm_zone:
-            cy, cx = [ degrees(c) for c in utm2ell(self.__xcmp__, self.__ycmp__ , utm_zone) ]
+            cy, cx = [
+                degrees(c)
+                for c in utm2ell(self.__xcmp__, self.__ycmp__, utm_zone)
+            ]
         else:
-            cx, cy = self.__xcmp__,  self.__ycmp__
+            cx, cy = self.__xcmp__, self.__ycmp__
         emean, ediff, taumax, staumax, emax, semax, emin, semin, azim, sazim, \
             dilat, sdilat, sec_inv, ssec_inv =  self.cmp_strain(self.__vcv__)
         if self.__vcv__ is not None:
@@ -838,12 +872,15 @@ class ShenStrain:
             self.value_of('tauy')*1e9, novar, \
             emax*1e9, novar, emin*1e9, novar, taumax*1e9, \
             novar, azim, novar, dilat*1e9, novar, sec_inv*1e9, novar), file=fout)
-    
+
     def print_details_v2(self, fout, utm_zone=None):
         if utm_zone:
-            cy, cx = [ degrees(c) for c in utm2ell(self.__xcmp__, self.__ycmp__ , utm_zone) ]
+            cy, cx = [
+                degrees(c)
+                for c in utm2ell(self.__xcmp__, self.__ycmp__, utm_zone)
+            ]
         else:
-            cx, cy = self.__xcmp__,  self.__ycmp__
+            cx, cy = self.__xcmp__, self.__ycmp__
         emean, ediff, taumax, staumax, emax, semax, emin, semin, azim, sazim, \
             dilat, sdilat, sec_inv, ssec_inv =  self.cmp_strain(self.__vcv__)
         if self.__vcv__ is not None:
@@ -897,7 +934,7 @@ class ShenStrain:
         if key in self.__options__:
             return self.__options__[key]
         raise RuntimeError
-    
+
     def set_xy(self, x, y):
         """ Set the x,y values of the instance.
 
@@ -970,7 +1007,8 @@ class ShenStrain:
         if self.__options__['weighting_function'] == 'shen':
             if not self.__options__['d_coef']:
                 self.vprint('[DEBUG] Searching for optimal D parameter.')
-                if self.__options__['dmin'] >= self.__options__['dmax'] or self.__options__['dstep'] < 0:
+                if self.__options__['dmin'] >= self.__options__[
+                        'dmax'] or self.__options__['dstep'] < 0:
                     raise RuntimeError
                 lwghts, zwghts, d = self.find_optimal_d()
                 self.__stalst__ = self.filter_sta_wrt_distance(d)
@@ -978,19 +1016,21 @@ class ShenStrain:
                 d = self.__options__['d_coef']
                 self.vprint('[DEBUG] Using optimal D parameter {}km.'.format(d))
                 self.__stalst__ = self.filter_sta_wrt_distance(d)
-                lwghts,_ = self.l_weights()
-                zwghts   = self.z_weights()
+                lwghts, _ = self.l_weights()
+                zwghts = self.z_weights()
             self.__zweights__ = zwghts
             self.__lweights__ = lwghts
         ## Formulate the LS matrices A and b (or AW, bW if shen).
         A, b = self.ls_matrices()
         ## Var-Covar matrix
-        VcV  = numpy.dot(A.T, A)
+        VcV = numpy.dot(A.T, A)
         m, n = A.shape
         if m < 6:
             raise RuntimeError('[ERROR] Too few obs to perform LS.')
         elif m == 6:
-            self.vprint('[DEBUG] Only 3 stations available; computing NOT estimating strain.')
+            self.vprint(
+                '[DEBUG] Only 3 stations available; computing NOT estimating strain.'
+            )
             self.__vcv__ = None
         ##  Note: To silence warning in versions > 1.14.0, use a third argument,
         ##+ rcond=None; see https://docs.scipy.org/doc/numpy/reference/generated/numpy.linalg.lstsq.html
@@ -1004,16 +1044,18 @@ class ShenStrain:
                 ##+ or (b - A*estim)^T * (b - A*estim)
                 sigma0_post = float(res[0])
                 self.__sigma0__ = sqrt(sigma0_post / (float(m) - 6e0))
-                bvar = linalg.inv(VcV) * (sigma0_post/float(m-n))
+                bvar = linalg.inv(VcV) * (sigma0_post / float(m - n))
                 ## A-posteriri VcV matrix = σ0^2 * (A^T P A)^-1
                 self.__vcv__ = bvar
             except:
-                self.vprint('[DEBUG] Cannot compute var-covar matrix! Probably singular.')
+                self.vprint(
+                    '[DEBUG] Cannot compute var-covar matrix! Probably singular.'
+                )
                 self.__vcv__ = None
-        self.__parameters__['Ux']    = float(estim[0])
-        self.__parameters__['Uy']    = float(estim[1])
-        self.__parameters__['taux']  = float(estim[2])
+        self.__parameters__['Ux'] = float(estim[0])
+        self.__parameters__['Uy'] = float(estim[1])
+        self.__parameters__['taux'] = float(estim[2])
         self.__parameters__['tauxy'] = float(estim[3])
-        self.__parameters__['tauy']  = float(estim[4])
+        self.__parameters__['tauy'] = float(estim[4])
         self.__parameters__['omega'] = float(estim[5])
         return estim

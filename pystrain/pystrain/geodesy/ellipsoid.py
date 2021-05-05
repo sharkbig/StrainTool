@@ -8,10 +8,11 @@ from math import cos, sin, sqrt
 ##+ ellipsoid names, and the respective values are the defining geometric
 ##+ parameters, i.e. a (semi-major axis) and f (flattening).
 ref_ell_dict = {
-    "grs80": [6378137e0, 1e0/298.257222101e0],
-    "wgs84": [6378137e0, 1e0/298.257223563e0],
-    "pz90" : [6378135e0, 1e0/298.257839303e0]
+    "grs80": [6378137e0, 1e0 / 298.257222101e0],
+    "wgs84": [6378137e0, 1e0 / 298.257223563e0],
+    "pz90": [6378135e0, 1e0 / 298.257839303e0]
 }
+
 
 class Ellipsoid:
     """A class to represent reference ellipsoids.
@@ -78,7 +79,7 @@ class Ellipsoid:
             Returns:
                 float: the squared eccentricity.
         """
-        return (2e0-self.f)*self.f;
+        return (2e0 - self.f) * self.f
 
     def semi_minor(self):
         """Compute and return the ellipsoid's semi-minor axis.
@@ -86,7 +87,7 @@ class Ellipsoid:
             Returns:
                 float: the ellipsoid's semi-minor axis (meters).
         """
-        return self.a*(1e0-self.f)
+        return self.a * (1e0 - self.f)
 
     def N(self, lat):
         """Normal radius of curvature.
@@ -100,12 +101,12 @@ class Ellipsoid:
             Returns:
                 float: normal radius of curvature at given latitude (meters).
         """
-        cosf  = cos(lat)
-        sinf  = sin(lat)
+        cosf = cos(lat)
+        sinf = sin(lat)
         acosf = self.a * cosf
         bsinf = sinf * self.semi_minor()
-        den   = sqrt(acosf*acosf + bsinf*bsinf)
-        return (self.a * self.a) / den;
+        den = sqrt(acosf * acosf + bsinf * bsinf)
+        return (self.a * self.a) / den
 
     def M(self, lat):
         """Meridional radii of curvature.
@@ -120,14 +121,14 @@ class Ellipsoid:
                 float: the meridional radii of curvature at the given latitude
                        (meters).
         """
-        a     = self.a
-        b     = self.semi_minor()
-        cosf  = cos(lat)
-        sinf  = sin(lat)
+        a = self.a
+        b = self.semi_minor()
+        cosf = cos(lat)
+        sinf = sin(lat)
         acosf = a * cosf
         bsinf = b * sinf
-        tmpd  = acosf*acosf + bsinf*bsinf
-        return ((a*b)/tmpd) * ((a*b)/sqrt(tmpd))
+        tmpd = acosf * acosf + bsinf * bsinf
+        return ((a * b) / tmpd) * ((a * b) / sqrt(tmpd))
 
     def __getattr__(self, name):
         """(Attribute) getter.
@@ -147,10 +148,14 @@ class Ellipsoid:
             Returns:
                 
         """
-        if name == "e2"  : return self.eccentricity_squared()
-        if name == "b"   : return self.semi_minor()
-        if name == "finv": return 1.0e0/self.f
+        if name == "e2":
+            return self.eccentricity_squared()
+        if name == "b":
+            return self.semi_minor()
+        if name == "finv":
+            return 1.0e0 / self.f
         raise AttributeError
+
 
 if __name__ == "__main__":
     ell1 = Ellipsoid("grs80")
@@ -165,8 +170,10 @@ if __name__ == "__main__":
         ell5 = Ellipsoid("pz90", 1.2, 4.5)
     except:
         print('Caught exception for ell5.')
-    print('Normal radius of curvature at ~ Athens {:15.3f}'.format(ell1.N(0.6628663536338242)))
-    print('Meridional radius of curvature at ~ Athens {:15.3f}'.format(ell1.M(0.6628663536338242)))
+    print('Normal radius of curvature at ~ Athens {:15.3f}'.format(
+        ell1.N(0.6628663536338242)))
+    print('Meridional radius of curvature at ~ Athens {:15.3f}'.format(
+        ell1.M(0.6628663536338242)))
     print('grs80 geometric parameters:')
     print('\tSemi-major           {:10.3f}'.format(ell1.a))
     print('\tSemi-minor           {:10.3f}'.format(ell1.b))
