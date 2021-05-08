@@ -3,7 +3,7 @@
 
 from __future__ import print_function
 from sys import float_info
-from math import floor, radians, degrees, ceil, floor
+from math import floor, radians, degrees, ceil, floor, isclose
 import numpy as np
 
 
@@ -39,12 +39,18 @@ class Grid:
     """
 
     def split2four(self):
-        x2 = self.x_min + (self.xpts / 2) * self.x_step
-        y2 = self.y_min + (self.ypts / 2) * self.y_step
+        x2 = self.x_min + (self.xpts // 2) * self.x_step - self.x_step / 2e0
+        y2 = self.y_min + (self.ypts // 2) * self.y_step - self.y_step / 2e0
+        """ new part
+        idx = (x2-self.x_min)/self.x_step
+        x2_stop = x2 - self.x_step / 2e0 if isclose(x2, self.x_min+idx*self.x_step, abs_tol=1e-9) else x2
+        idx = (y2-self.y_min)/self.y_step
+        y2_stop = y2 - self.y_step / 2e0 if isclose(y2, self.y_min+idx*self.y_step, abs_tol=1e-9) else y2
+        """
         g1 = Grid(self.x_min, x2, self.x_step, self.y_min, y2, self.y_step)
-        g2 = Grid(x2, self.x_max, self.x_step, self.y_min, y2, self.y_step)
-        g3 = Grid(self.x_min, x2, self.x_step, y2, self.y_max, self.y_step)
-        g4 = Grid(x2, self.x_max, self.x_step, y2, self.y_max, self.y_step)
+        g2 = Grid(x2_stop, self.x_max, self.x_step, self.y_min, y2, self.y_step)
+        g3 = Grid(self.x_min, x2, self.x_step, y2_stop, self.y_max, self.y_step)
+        g4 = Grid(x2_stop, self.x_max, self.x_step, y2_stop, self.y_max, self.y_step)
         return g1, g2, g3, g4
 
     ## TODO write about ceil/floor and [x|y]_max in documentation
@@ -114,6 +120,9 @@ class Grid:
         assert self.xpts > 0 and self.ypts > 0
         assert x_min + self.xpts * x_step <= x_max + upper_limit_epsilon
         assert y_min + self.ypts * y_step <= y_max + upper_limit_epsilon
+        print('Grid construction: {:}/{:}/{:}'.format(self.x_min, self.x_max, self.x_step))
+        print('                   {:}/{:}/{:}'.format(self.y_min, self.y_max, self.y_step))
+        print('xpts/ypts          {:}/{:}'.format(self.xpts, self.ypts))
 
     def __iter__(self):
         self.cxi = 0

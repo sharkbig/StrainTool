@@ -14,8 +14,8 @@ assert (os.path.isfile(data_file))
 ##
 lat_range = (0, 80, 10)
 lon_range = (-80, 75, 10)
-lat_width = 25e0
-lon_width = 25e0
+lat_width = 15e0
+lon_width = 15e0
 #lat_range = (73, 80, 8)
 #lon_range = (70, 75, 8)
 
@@ -26,8 +26,8 @@ for lat_start in range(lat_range[0], lat_range[1], lat_range[2]):
     for lon_start in range(lon_range[0], lon_range[1], lon_range[2]):
         lon_from = float(lon_start)
         lon_to = lon_from + lon_width
-        for step_sizes in [(0.1, 0.1), (0.4, 0.4), (0.5, 0.5), (0.7, 0.7),
-                           (1e0, 1e0), (1.5e0, 1.5e0), (2e0, 2e0),
+        for step_sizes in [(0.4, 0.4), (0.7, 0.7),
+                           (1e0, 1e0), (2e0, 2e0),
                            (1.5e0, 0.5e0),
                            (float(lon_range[2]), float(lat_range[2]))]:
             options = [
