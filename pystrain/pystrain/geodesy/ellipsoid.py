@@ -57,19 +57,19 @@ class Ellipsoid:
         """
         # a and f can be both None or both not None
         if bool(a) + bool(f) == 1:
-            raise RuntimeError
+            raise RuntimeError("[ERROR] Need both a semi-major axis and flattening to construct an ellipsoid")
         self.name = name
         # if a and f are None, the user (probably) wants a standard ellipsoid
         if not a:
             #if not ref_ell_dict.has_key(name.lower()): !! not Python3 compatible
             if name.lower() not in ref_ell_dict:
-                raise LookupError
+                raise LookupError("[ERROR] {:} is not a valid ellipsoid name".format(name))
             self.a, self.f = ref_ell_dict[name.lower()]
         # user has supplied a and f vals
         else:
             #if ref_ell_dict.has_key(name.lower()):
             if name.lower() in ref_ell_dict:
-                raise RuntimeError
+                raise RuntimeError("[ERROR] {:} is already a valid ellipsoid name".format(name))
             self.a = a
             self.f = f
 
@@ -155,28 +155,3 @@ class Ellipsoid:
         if name == "finv":
             return 1.0e0 / self.f
         raise AttributeError
-
-
-if __name__ == "__main__":
-    ell1 = Ellipsoid("grs80")
-    ell2 = Ellipsoid("GRS80")
-    ell3 = Ellipsoid("mine", 1.2, 2.3)
-    try:
-        # this should throw
-        ell4 = Ellipsoid("mine", 1.2)
-    except:
-        print('Caught exception for ell4.')
-    try:
-        ell5 = Ellipsoid("pz90", 1.2, 4.5)
-    except:
-        print('Caught exception for ell5.')
-    print('Normal radius of curvature at ~ Athens {:15.3f}'.format(
-        ell1.N(0.6628663536338242)))
-    print('Meridional radius of curvature at ~ Athens {:15.3f}'.format(
-        ell1.M(0.6628663536338242)))
-    print('grs80 geometric parameters:')
-    print('\tSemi-major           {:10.3f}'.format(ell1.a))
-    print('\tSemi-minor           {:10.3f}'.format(ell1.b))
-    print('\tFLattening           {:10.3f}'.format(ell1.f))
-    print('\tInv. Flattening      {:10.3f}'.format(ell1.finv))
-    print('\tEccentricity Squared {:10.3f}'.format(ell1.e2))

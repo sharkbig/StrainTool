@@ -128,7 +128,7 @@ def compute__(grd, sta_list_utm, utmzone, fout, fstats, vprint_fun, **dargs):
                 x, y, E, N))
         if not dargs['multiproc_mode']:
             print('[DEBUG] {:5d}/{:7d}'.format(node_nr + 1,
-                                               grd.xpts * grd.ypts),
+                                               grd.num_nodes()),
                   end="\r")
         ## Construct the Strain instance, with all args (from input)
         sstr = ShenStrain(E, N, sta_list_utm, **dargs)
@@ -137,8 +137,8 @@ def compute__(grd, sta_list_utm, utmzone, fout, fstats, vprint_fun, **dargs):
             try:
                 sstr.estimate()
                 vprint_fun(
-                    '[DEBUG] Computed tensor at {:+8.4f} {:+8.4f} for node {:3d}/{:3d}'
-                    .format(x, y, node_nr + 1, grd.xpts * grd.ypts))
+                    '[DEBUG] Computed tensor at {:+8.4f} {:+8.4f} for node {:5d}/{:5d}'
+                    .format(x, y, node_nr + 1, grd.num_nodes()))
                 sstr.print_details_v2(fout, utmzone)
                 if fstats:
                     print('{:+9.4f} {:+10.4f} {:6d} {:14.2f} {:10.2f} {:12.3f}'.
@@ -349,7 +349,7 @@ parser.add_argument('--verbose',
 
 parser.add_argument('--multicore',
                     dest='multiproc_mode',
-                    help='Run in multithreading mode',
+                    help='Run in multithreading mode. Note that multicore processing will only actualy take place if the number of grid nodes is larger than 20.',
                     action='store_true')
 
 parser.add_argument('-v',
@@ -566,14 +566,14 @@ if __name__ == '__main__':
                                      latmax, args.y_grid_step)
         else:
             grd = pystrain.grid.generate_grid(sta_list_ell, args.x_grid_step,
-                                              args.y_grid_step, True)
+                                              args.y_grid_step, rad2deg=True)
         print('[DEBUG] Grid Information:')
         print('[DEBUG]\tLongtitude : from {} to {} with step {} (deg)'.format(
-            grd.x_min, grd.x_max, grd.x_step))
+            grd.xmin, grd.xmax(), grd.xstep))
         print('[DEBUG]\tLatitude   : from {} to {} with step {} (deg)'.format(
-            grd.y_min, grd.y_max, grd.y_step))
+            grd.ymin, grd.ymax(), grd.ystep))
         print('[DEBUG] Number of Strain Tensors to be estimated: {}'.format(
-            grd.xpts * grd.ypts))
+            grd.xlength * grd.ylength))
         if fstats:
             print('{:^10s} {:^10s} {:^10s} {:^12s} {:^12s} {:^12s}'.format(
                 'Longtitude', 'Latitude', '# stations', 'D (optimal)',
@@ -585,8 +585,8 @@ if __name__ == '__main__':
         vprint('[DEBUG] Estimating strain tensor for each cell center:')
         ##  Iterate through the grid (on each cell center). Grid returns cell-centre
         ##+ coordinates in lon/lat pairs, in degrees!
-        if args.multiproc_mode:
-            grd1, grd2, grd3, grd4 = grd.split2four()
+        if args.multiproc_mode and grd.num_nodes()>20:
+            grd1, grd2, grd3, grd4 = grd.split_four()
             fout1 = open(".out.thread1", "w")
             fout2 = open(".out.thread2", "w")
             fout3 = open(".out.thread3", "w")

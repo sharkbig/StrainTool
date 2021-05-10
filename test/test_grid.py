@@ -3,10 +3,11 @@
 from __future__ import print_function
 import sys
 import pystrain.grid2
+import pystrain.grid
 import random
 
 # seed random number generator
-random.seed(1)
+random.seed()
 
 def lists_equal(lst1, lst2):
     if len(lst1) != len(lst2):
@@ -42,15 +43,16 @@ def print_matching(lst1, lst2):
             matched_idx.append(idx)
         except ValueError:
             pass
-    #for i in range(len(slave)):
-    #    if i not in matched_idx:
-    #        print('\tunmatched: {:}'.format(slave[i]))
+    for i in range(len(slave)):
+        if i not in matched_idx:
+            print('\tunmatched: {:}'.format(slave[i]))
 
 lat_range = (-90e0, 90e0)
 lon_range = (-180, 180)
 lat_width = 15e0
 lon_width = 15e0
 
+grid_xy0 = []
 grid_xy1 = []
 grid_xy2 = []
 test_nr = 0
@@ -80,6 +82,14 @@ while lat_start < lat_range[1]:
             except RuntimeError as err:
                 print('WARNING! Failed to split grid {:}'.format(grd))
                 print('         Msg: {:}'.format(err))
+            #grd0 = pystrain.grid.Grid(lon_from, lon_to, step_sizes[0], lat_from, lat_to, step_sizes[1])
+            #for x, y in grd0:
+            #    grid_xy0.append('{:+12.3f}{:+12.3f}'.format(x,y))
+            #if not lists_equal(grid_xy0, grid_xy1):
+            #    print('[ERROR] Version 1 grid is different!')
+            #    print_matching(grid_xy0, grid_xy1)
+            #    sys.exit(1)
+            grid_xy0 = []
             grid_xy1 = []
             grid_xy2 = []
     lat_start += round(random.uniform(0.01, 15e0), 2)

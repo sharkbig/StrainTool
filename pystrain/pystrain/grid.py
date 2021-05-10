@@ -2,235 +2,154 @@
 #-*- coding: utf-8 -*-
 
 from __future__ import print_function
-from sys import float_info
-from math import floor, radians, degrees, ceil, floor, isclose
+import math
 import numpy as np
+from sys import float_info
 
 
 class Grid:
-    """A dead simple grid class.
 
-        A very simple grid class to be used within the StrainTensor project.
-        A Grid instance has x- and y- axis limits and step sizes (i.e x_min,
-        x_max, x_step, y_min, y_max, y_step).
-        It is iterable; when iterating, the instance will return the center
-        of each cell, starting from the bottom left corner and ending at the
-        top right. The iteration is performed row-wise (i.e.
-        > [x0+xstep/2, y0+ystep/2]
-        > [x0+xstep/2, y0+ystep/2+ystep]
-        > [x0+xstep/2, y0+ystep/2+2*ystep]
-        > ...
-        > [x0+xstep/2, ymax-ystep/2]
-        > [x0+xstep/2+xstep, y0+ystep/2]
-        > [x0+xstep/2+xstep, y0+ystep/2+ystep]
-        > [x0+xstep/2+xstep, y0+ystep/2+2*ystep]
-
-        Attributes:
-            x_min : minimum value in x-axis.
-            x_max : maximum value in x-axis.
-            x_step: x-axis step size.
-            y_min : minimum value in y-axis.
-            y_max : maximum value in y-axis.
-            y_step: y-axis step size.
-            cxi   : current x-axis tick / index
-            cyi   : current y-axis tick / index
-            xpts  : number of ticks on x-axis
-            ypts  : number of ticks on y-axis
-    """
-
-    def split2four(self):
-        x2 = self.x_min + (self.xpts // 2) * self.x_step - self.x_step / 2e0
-        y2 = self.y_min + (self.ypts // 2) * self.y_step - self.y_step / 2e0
-        """ new part
-        idx = (x2-self.x_min)/self.x_step
-        x2_stop = x2 - self.x_step / 2e0 if isclose(x2, self.x_min+idx*self.x_step, abs_tol=1e-9) else x2
-        idx = (y2-self.y_min)/self.y_step
-        y2_stop = y2 - self.y_step / 2e0 if isclose(y2, self.y_min+idx*self.y_step, abs_tol=1e-9) else y2
-        """
-        g1 = Grid(self.x_min, x2, self.x_step, self.y_min, y2, self.y_step)
-        g2 = Grid(x2_stop, self.x_max, self.x_step, self.y_min, y2, self.y_step)
-        g3 = Grid(self.x_min, x2, self.x_step, y2_stop, self.y_max, self.y_step)
-        g4 = Grid(x2_stop, self.x_max, self.x_step, y2_stop, self.y_max, self.y_step)
-        return g1, g2, g3, g4
-
-    ## TODO write about ceil/floor and [x|y]_max in documentation
     def __init__(self,
-                 x_min,
-                 x_max,
-                 x_step,
-                 y_min,
-                 y_max,
-                 y_step,
-                 strict_upper_limit=False,
-                 upper_limit_epsilon=1e-10):
-        """Constructor via x- and y- axis limits.
-
-            The __init__ method will assign all of the instance's attributes.
-            The x- and y- tick indexes will be set to 0 (ready for iterating).
-
-            Args:
-                x_min : minimum value in x-axis.
-                x_max : maximum value in x-axis.
-                x_step: x-axis step size.
-                y_min : minimum value in y-axis.
-                y_max : maximum value in y-axis.
-                y_step: y-axis step size.
-                strict_upper_limit: see Note
-                upper_limit_epsilon: see Note
-
-            Note:
-                To find the number of points between the min and max values for
-                each of the axis (aka x and y), the function will perform a
-                computation of the type:
-                xpts = int(floor((x_max-x_min) / float(x_step)))
-                This is quite accurate, but due to roundoff errors, it may 
-                happen that the quantity x_min + xpts * x_step is just a bit 
-                larger than x_max.
-                If the user definitely wants the formula:
-                x_min + self.xpts * x_step <= x_max to hold, then the option
-                strict_upper_limit must be set to true.
-                If strict_upper_limit is false, then the above relationship
-                will hold up to the given accuracy, aka upper_limit_epsilon,
-                that is:
-                x_min + self.xpts * x_step <= x_max + upper_limit_epsilon
-
-        """
-        self.x_min = x_min
-        self.x_max = x_max
-        self.x_step = x_step
-        self.y_min = y_min
-        self.y_max = y_max
-        self.y_step = y_step
-        self.cxi = 0  # current x-axis tick / index
-        self.cyi = 0  # current y-axis tick / index
-        self.xpts = int(floor((x_max - x_min) / float(x_step)))
-        self.ypts = int(floor((y_max - y_min) / float(y_step)))
-        if strict_upper_limit:
-            while x_min + self.xpts * x_step > x_max:
-                self.xpts -= 1
-            while y_min + self.ypts * y_step > y_max:
-                self.ypts -= 1
-            upper_limit_epsilon = 0e0
+                 xmin,
+                 x__,
+                 xstep,
+                 ymin,
+                 y__,
+                 ystep,
+                 init_from_num_pts=False):
+        if not init_from_num_pts:
+            self.__init_from_limits__(xmin, x__, xstep, ymin, y__, ystep)
         else:
-            assert x_step > upper_limit_epsilon / 2e0 and y_step > upper_limit_epsilon / 2e0
-        # if using ceil for pts number
-        #assert x_min + self.xpts * x_step >= x_max and abs(x_min + self.xpts * x_step - x_max) < x_step/float(2)
-        #assert y_min + self.ypts * y_step >= y_max and abs(y_min + self.ypts * y_step - y_max) < y_step/float(2)
-        # if using floor for pts number
-        assert self.xpts > 0 and self.ypts > 0
-        assert x_min + self.xpts * x_step <= x_max + upper_limit_epsilon
-        assert y_min + self.ypts * y_step <= y_max + upper_limit_epsilon
-        print('Grid construction: {:}/{:}/{:}'.format(self.x_min, self.x_max, self.x_step))
-        print('                   {:}/{:}/{:}'.format(self.y_min, self.y_max, self.y_step))
-        print('xpts/ypts          {:}/{:}'.format(self.xpts, self.ypts))
+            self.__init_from_numpts__(xmin, x__, xstep, ymin, y__, ystep)
+
+    def __init_from_limits__(self, xmin, xmax, xstep, ymin, ymax, ystep):
+        assert (xmin <= xmax and ymin <= ymax)
+        assert (xstep > 0 and ystep > 0)
+        self.xmin = xmin
+        self.xstep = xstep
+        self.xlength = math.ceil((xmax - xmin) / xstep)
+        self.ymin = ymin
+        self.ystep = ystep
+        self.ylength = math.ceil((ymax - ymin) / ystep)
+        """
+        ## redundant tests .... delete
+        self.xrange = np.arange(xmin, xmax, xstep)
+        self.yrange = np.arange(ymin, ymax, ystep)
+        if not self.xlength == self.xrange.size:
+            print('Computed x-length: {:} np-length: {:}'.format(self.xlength, self.xrange.size))
+        if not self.ylength == self.yrange.size:
+            print('Computed y-length: {:} np-length: {:}'.format(self.ylength, self.yrange.size))
+        assert(self.xlength == self.xrange.size)
+        assert(self.ylength == self.yrange.size)
+        print('\tGrid initialized! NP sizes match aka {:}/{:} and {:}/{:}'.format(self.xlength, self.xrange.size, self.ylength, self.yrange.size))
+        """
+
+    def __init_from_numpts__(self, xmin, xpts, xstep, ymin, ypts, ystep):
+        assert (xstep > 0 and ystep > 0)
+        assert (isinstance(xpts, int) and isinstance(ypts, int))
+        self.xmin = xmin
+        self.xstep = xstep
+        self.xlength = xpts
+        self.ymin = ymin
+        self.ystep = ystep
+        self.ylength = ypts
+
+    def xmax(self): return self.xmin + self.xlength * self.xstep
+    def ymax(self): return self.ymin + self.ylength * self.ystep
+    def num_nodes(self): return self.xlength * self.ylength
+
+    def __repr__(self):
+        return 'Grid xaxis-> from:{:}, step:{:}, points:{:}\n     yaxis-> from:{:}, step:{:}, points:{:}'.format(
+            self.xmin, self.xstep, self.xlength, self.ymin, self.ystep,
+            self.ylength)
+
+    def __str__(self):
+        xstop = self.xmin + self.xlength * self.xstep
+        ystop = self.ymin + self.ylength * self.ystep
+        return '{:+12.7f}/{:+12.7f}/{:+12.7f}/{:+12.7f}'.format(
+            self.xmin, xstop, self.ymin, ystop)
 
     def __iter__(self):
-        self.cxi = 0
-        self.cyi = 0
+        self.x_idx = 0
+        self.y_idx = 0
         return self
 
-    def xidx2xval(self, idx):
-        """Index to value for x-axis.
-         
-            Given an index (on x-axis), return the value at the centre of this
-            cell. The index represents the number of a cell (starting from
-            zero).
+    def index2point(self, xidx, yidx):
+        assert (xidx < self.xlength and yidx < self.ylength)
+        xpt = self.xmin + xidx * self.xstep + self.xstep / 2e0
+        ypt = self.ymin + yidx * self.ystep + self.ystep / 2e0
+        return xpt, ypt
 
-            Args:
-                idx (int): the index; should be in range (0, self.xpts]
+    def __next__(self):
+        if self.y_idx >= self.ylength:
+            self.x_idx += 1
+            if self.x_idx >= self.xlength:
+                raise StopIteration
+            self.y_idx = 0
+        pt = self.index2point(self.x_idx, self.y_idx)
+        self.y_idx += 1
+        return pt
+
+    def split_four(self):
+        if self.xlength < 2 or self.ylength < 2:
+            print(
+                '[ERROR] Trying to split grid which is a block! Cannot do that!'
+            )
+            error_msg = 'Grid [{:}] is a block; cannot split it'.format(
+                self.__repr__())
+            raise RuntimeError(error_msg)
+        xhalf_pts = self.xlength // 2
+        yhalf_pts = self.ylength // 2
+        xmiddle_pt = self.xmin + xhalf_pts * self.xstep
+        ymiddle_pt = self.ymin + yhalf_pts * self.ystep
+        xrest_pts = self.xlength - xhalf_pts
+        yrest_pts = self.ylength - yhalf_pts
+        g1, g2, g3, g4 = Grid(
+            self.xmin, xhalf_pts, self.xstep, self.ymin, yhalf_pts, self.ystep,
+            True), Grid(xmiddle_pt, xrest_pts, self.xstep, self.ymin, yhalf_pts,
+                        self.ystep,
+                        True), Grid(self.xmin, xhalf_pts, self.xstep,
+                                    ymiddle_pt, yrest_pts, self.ystep,
+                                    True), Grid(xmiddle_pt, xrest_pts,
+                                                self.xstep, ymiddle_pt,
+                                                yrest_pts, self.ystep, True)
         """
-        assert idx >= 0 and idx < self.xpts
-        return self.x_min + self.x_step / 2e0 + self.x_step * float(idx)
-
-    def yidx2yval(self, idx):
-        """Index to value for y-axis.
-         
-            Given an index (on y-axis), return the value at the centre of this
-            cell. The index represents the number of a cell (starting from
-            zero).
-
-            Args:
-                idx (int): the index; should be in range (0, self.ypts]
+        print('DEBUG:: [X-lengths: {:}, {:}, {:}, {:}] -> {:}'.format(g1.xlength, g2.xlength, g3.xlength, g4.xlength, self.xlength))
+        print('DEBUG:: [Y-lengths: {:}, {:}, {:}, {:}] -> {:}'.format(g1.ylength, g2.ylength, g3.ylength, g4.ylength, self.ylength))
+        if not (g1.xlength + g2.xlength == self.xlength) or not (g1.ylength + g3.ylength == self.ylength):
+            print('Master: {:}'.format(self.__repr__()))
+            print('G1    : {:}'.format(g1.__repr__()))
+            print('G2    : {:}'.format(g2.__repr__()))
+            print('G3    : {:}'.format(g3.__repr__()))
+            print('G4    : {:}'.format(g4.__repr__()))
+            print('\nX\'s   :', end='')
+            for i in range(self.xlength):
+                print('{:+8.3f},'.format(self.xmin + i*self.xstep + self.xstep/2e0),end='')
+            print('\nX\'s   :', end='')
+            for g in [g1, g2]:
+                for i in range(g.xlength): print('{:+8.3f},'.format(g.xmin + i*g.xstep + g.xstep/2e0),end='')
+            print('\nY\'s   :', end='')
+            for i in range(self.ylength): print('{:+8.3f},'.format(self.ymin + i*self.ystep + self.ystep/2e0),end='')
+            print('\nY\'s   :', end='')
+            for g in [g1, g3]:
+                for i in range(g.ylength): print('{:+8.3f},'.format(g.ymin + i*g.ystep + g.ystep/2e0),end='')
         """
-        assert idx >= 0 and idx < self.ypts
-        return self.y_min + self.y_step / 2e0 + self.y_step * float(idx)
+        assert (g1.xlength + g2.xlength == self.xlength)
+        assert (g1.ylength + g3.ylength == self.ylength)
+        return g1, g2, g3, g4
 
-    def next(self):
-        """Return the centre of the next cell.
-
-            Return the (centre of the) next cell (aka x,y coordinate pair). Next
-            actually means the cell on the right (if there is one), or else the
-            leftmost cell in the above row.
-
-            Raises:
-                StopIteration: if there are not more cell we can get to.
-        """
-        xi, yi = self.cxi, self.cyi
-        if self.cxi >= self.xpts - 1:
-            if self.cyi >= self.ypts - 1:
-                # last element iin iteration!
-                if self.cxi == self.xpts - 1 and self.cyi == self.ypts - 1:
-                    self.cxi += 1
-                    self.cyi += 1
-                    return self.xidx2xval(xi), \
-                           self.y_min + self.y_step/2e0 + self.y_step*float(yi)
-                else:
-                    raise StopIteration
-            self.cxi = 0
-            self.cyi += 1
-        else:
-            xi, yi = self.cxi, self.cyi
-            self.cxi += 1
-        return self.xidx2xval(xi), self.yidx2yval(yi)
-
-    # Python 3.X compatibility
-    __next__ = next
-
-
-def generate_grid(sta_lst, x_step, y_step, sta_lst_to_deg=False):
-    """Grid generator.
-
-        Given a list of Stations and x- and y-axis step sizes, compute and
-        return a Grid instance. The max/min x and y values (of the Grid) are
-        extracted from the station coordinates; if needed, they are adjusted
-        so that (xmax-xmin) is divisible (without remainder) with xstep.
-        Obsviously, sta_lst coordinates (assesed by .lon and .lat) must match
-        the x_step and y_step values respectively (same units and reference
-        system).
-
-        Args:
-            sta_lst (list): list of Station instances. Coordinates of the stations are
-                     used, using the 'lon' and 'lat' instance variables. Longtitude
-                     values are matched to 'x_step' and latitude values are matched
-                     to 'ystep'
-            x_step  (float): value of step for the x-axis of the grid.
-            y_step  (float): value of step for the y-axis of the grid.
-            sta_lst_to_deg: If set to True, then the input parameters are first
-                            converted to degrees (they are assumed to be radians)
-
-        Returns:
-            A Grid instance: the min and max values of the Grid are computed from
-            the input coordinates (i.e. the sta_lst input list) and then adjusted
-            so that the range (xmax-xmin) is divisible with x_step (same goes for
-            the y-axis)
-
-        Todo:
-            The lines 
-            assert divmod(y_max-y_min, y_step)[1] == 0e0 and
-            assert divmod(x_max-x_min, x_step)[1] == 0e0
-            may throw dues to rounding errors; how can i fix that?
-
-    """
-    #  Get min/max values of the stations (also transform from radians to degrees
-    #+ if needed.
+def generate_grid(station_lst, x_step, y_step, **kwargs):
+    #rad2deg = False 
+    #if 'rad2deg' in kwargs and kwargs['rad2deg'] is True: rad2deg = True
+    rad2deg = kwargs.get('rad2deg', False)
     y_min = float_info.max
     y_max = float_info.min
     x_min = float_info.max
     x_max = float_info.min
-    for s in sta_lst:
-        if sta_lst_to_deg:
-            slon = degrees(s.lon)
-            slat = degrees(s.lat)
+    for station in station_lst:
+        if rad2deg:
+            slon = math.degrees(s.lon)
+            slat = math.degrees(s.lat)
         else:
             slon = s.lon
             slat = s.lat
@@ -243,36 +162,12 @@ def generate_grid(sta_lst, x_step, y_step, sta_lst_to_deg=False):
         if slat < y_min:
             y_min = slat
     # Adjust max and min to step.
-    #print("\t[DEBUG] Region: Easting: {:}/{:} Northing: {:}/{:}".format(x_min, x_max, y_min, y_max))
     s = float((floor((y_max - y_min) / y_step) + 1e0) * y_step)
     r = s - (y_max - y_min)
     y_min -= r / 2
     y_max += r / 2
-    # assert divmod(y_max-y_min, y_step)[1] == 0e0
     s = float((floor((x_max - x_min) / x_step) + 1e0) * x_step)
     r = s - (x_max - x_min)
     x_min -= r / 2
     x_max += r / 2
-    # assert divmod(x_max-x_min, x_step)[1] == 0e0
-    # return a Grid instance
     return Grid(x_min, x_max, x_step, y_min, y_max, y_step)
-
-
-if __name__ == "__main__":
-    #grd = Grid(19.25e0, 30.75e0, 0.5e0, 34.25e0, 42.75e0, 0.5e0)
-    grd = Grid(19.25e0, 20.75e0, 0.5e0, 34.25e0, 40.75e0, 0.5e0)
-    print('Constructed grid with axis:')
-    print('\tX: from {} to {} with step {}'.format(grd.x_min, grd.x_max,
-                                                   grd.x_step))
-    print('\tY: from {} to {} with step {}'.format(grd.y_min, grd.y_max,
-                                                   grd.y_step))
-    idx = 0
-    for x, y in grd:
-        idx += 1
-        print('index {:3d}/{:4d}: Cell centre is at: {:}, {:}'.format(
-            idx, grd.xpts * grd.ypts, x, y))
-    dummy = np.arange(grd.x_min + grd.x_step / 2e0, grd.x_max, grd.x_step)
-    assert len(dummy) == grd.xpts
-    dummy = np.arange(grd.y_min + grd.y_step / 2e0, grd.y_max, grd.y_step)
-    assert len(dummy) == grd.ypts
-    assert grd.xpts * grd.ypts == idx

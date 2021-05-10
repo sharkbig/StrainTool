@@ -176,11 +176,11 @@ def ell2utm(lat, lon, ell=Ellipsoid("wgs84"), zone=None, lcm=None):
     h23 = h22 * h2
     h24 = h23 * h2
 
-    A0 = 1 + n2 / 4.0 + n4 / 64.0
-    A2 = 3.0 / 2.0 * (n - n3 / 8)
-    A4 = 15.0 / 16.0 * (n2 - n4 / 4)
-    A6 = 35.0 / 48.0 * n3
-    A8 = 315.0 / 512.0 * n4
+    A0 = 1 + n2 / 4e0 + n4 / 64e0
+    A2 = 3e0 / 2e0 * (n - n3 / 8)
+    A4 = 15e0 / 16e0 * (n2 - n4 / 4)
+    A6 = 35e0 / 48e0 * n3
+    A8 = 315e0 / 512e0 * n4
     S = a / (1 + n) * (A0 * lat - A2 * sin(2 * lat) + A4 * sin(4 * lat) -
                        A6 * sin(6 * lat) + A8 * sin(8 * lat))
 

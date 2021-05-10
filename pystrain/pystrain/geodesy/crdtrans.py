@@ -24,7 +24,9 @@ def top2daz(north, east, up):
                             in meters, and azimouth and zenith are in radians.
     """
     distance = math.sqrt(north * north + east * east + up * up)
-    a = math.atan2(east, north) % (math.pi * 2e0)  # normalized [0, 2pi]
+    #a = math.atan2(east, north) % (math.pi * 2e0)  # normalized [0, 2pi]
+    a = math.fmod(math.atan2(east, north), 2e0*math.pi)
+    if a < 0e0: a+=2e0*math.pi
     zenith = math.acos(up / distance)
     return distance, a, zenith
 
@@ -104,7 +106,7 @@ def ell2car(phi, lamda, h, ell=Ellipsoid("wgs84")):
     # Compute geocentric rectangular coordinates.
     x = (N + h) * cosf * cosl
     y = (N + h) * cosf * sinl
-    z = ((1.0e0 - e2) * N + h) * sinf
+    z = ((1e0 - e2) * N + h) * sinf
 
     # Finished.
     return x, y, z
@@ -134,9 +136,9 @@ def car2ell(x, y, z, ell=Ellipsoid("wgs84")):
     f = ell.f
     # Functions of ellipsoid parameters.
     aeps2 = a * a * 1e-32
-    e2 = (2.0e0 - f) * f
+    e2 = (2e0 - f) * f
     e4t = e2 * e2 * 1.5e0
-    ep2 = 1.0e0 - e2
+    ep2 = 1e0 - e2
     ep = math.sqrt(ep2)
     aep = a * ep
 
@@ -186,32 +188,8 @@ def car2ell(x, y, z, ell=Ellipsoid("wgs84")):
         h = absz - aep
 
     # Restore sign of latitude.
-    if (z < 0.e0):
+    if (z < 0e0):
         phi = -phi
 
     # Finished.
     return phi, lamda, h
-
-
-if __name__ == "__main__":
-    dyng_xyz = [4595220.002e0, 2039434.077e0, 3912625.997e0]
-    lat, lon, hgt = car2ell(dyng_xyz[0], dyng_xyz[1], dyng_xyz[2])
-    dx, dy, dz = ell2car(lat, lon, hgt)
-    print('From cartesian to ellipsoidal and back, diffs are:')
-    print('Δx = {}\nΔy = {}\nΔz = {}'.format(abs(dyng_xyz[0] - dx),
-                                             abs(dyng_xyz[1] - dy),
-                                             abs(dyng_xyz[2] - dz)))
-    assert abs(dyng_xyz[0]-dx) < 1e-7 and \
-        abs(dyng_xyz[1]-dy) < 1e-7 and \
-        abs(dyng_xyz[2]-dz) < 1e-7
-
-    dyng2xyz = [c + 5e0 for c in dyng_xyz]
-    lat2, lon2, hgt2 = car2ell(dyng2xyz[0], dyng2xyz[1], dyng2xyz[2])
-    n1, e1, u1 = car2top(dyng_xyz[0], dyng_xyz[1], dyng_xyz[2], dyng2xyz[0],
-                         dyng2xyz[1], dyng2xyz[2])
-    print('Cartesian to Topocentric')
-    print('Δn = {}\nΔe = {}\nΔu = {}'.format(n1, e1, u1))
-    dr = math.sqrt(3e0 * math.pow(5e0, 2))
-    assert abs(dr - math.sqrt(n1 * n1 + e1 * e1 + u1 * u1)) < 1e-5
-    distance, a, zenith = top2daz(n1, e1, u1)
-    assert abs(dr - distance) < 1e-5
