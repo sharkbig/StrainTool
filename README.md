@@ -48,9 +48,10 @@ It is by no means mandatory to use these scripts to plot the results; users can 
 These scripts, are found under `StrainTool/plot`
 
 # Installation
-## Fast installation
-
+## Fast installation 
+*Need to download the bin file*
 `pip install git+https://github.com/sharkbig/StrainTool.git`
+
 
 ## Prerequisites
 
